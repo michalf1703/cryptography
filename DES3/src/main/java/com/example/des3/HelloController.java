@@ -7,9 +7,15 @@ import javafx.stage.FileChooser;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class HelloController extends Component {
     private TripleDES tripledes = new TripleDES();
+    private FileChooser fileChooser = new FileChooser();
     private byte tekst[];
     private byte szyfr[];
     private byte deszyfr[];
@@ -17,6 +23,8 @@ public class HelloController extends Component {
     private FileOperations pliczek;
     private BitOperations bicik;
     DES des = new DES();
+
+
 
     @FXML
     private TextField textField1;
@@ -35,9 +43,6 @@ public class HelloController extends Component {
     @FXML
     void btnGenerujKlucz(ActionEvent event) {
 
-        String text1 = "0123456789ABCDEF";
-        String text2 = "1133557799BBDDFF";
-        String text3 = "0022446688AACCEE";
         textField1.setText(des.generujKlucze());
         textField2.setText(des.generujKlucze());
         textField3.setText(des.generujKlucze());
@@ -80,7 +85,43 @@ public class HelloController extends Component {
         }
     }
 
+    @FXML
+    void btnPlikBinarny(ActionEvent event) throws IOException {
+        File file = fileChooser.showOpenDialog(null);
+        String sciezka = file.getPath();
+        byte[] content = Files.readAllBytes(Paths.get(sciezka));
+        try {
+            tripledes.s_key1 = textField1.getText();
+            tripledes.s_key2 = textField2.getText();
+            tripledes.s_key3 = textField3.getText();
+            szyfr = tripledes.encode3DES(content);
+            szyfruj_plik.setText(bicik.bytesToHex(szyfr));
+        } catch (DES.DESKeyException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE);
+        }
+        File file2 = fileChooser.showOpenDialog(null);
+        OutputStream outputStream = new FileOutputStream(file2.getPath());
+        outputStream.write(szyfr, 0,szyfr.length);
+        outputStream.close();
 
+
+    }
+    @FXML
+    void btnOdszyfrujPlikBinarny(ActionEvent event) throws IOException {
+
+        try{
+            tripledes.s_key1=textField1.getText();
+            tripledes.s_key2=textField2.getText();
+            tripledes.s_key3=textField3.getText();
+            deszyfr =tripledes.decode3DES(bicik.hexToBytes(szyfruj_plik.getText()));
+          //  wczytaj_tekst.setText(new String(deszyfr));
+        } catch(DES.DESKeyException e){JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
+
+        File file1 = fileChooser.showOpenDialog(null);
+        OutputStream outputStream2 = new FileOutputStream(file1.getPath());
+        outputStream2.write(deszyfr, 0,deszyfr.length);
+        outputStream2.close();
+    }
     @FXML
     void btnSzyfrowanie(ActionEvent event) {
         try {
@@ -119,7 +160,7 @@ public class HelloController extends Component {
         String directory = fd.getDirectory();
         if (fileName != null && directory != null) {
             String path = directory + fileName;
-            File file = new File(path);
+          //  File file = new File(path);
             try {
                 pliczek.zapiszDoPliku(szyfruj_plik.getText().getBytes(), path);
             } catch (Exception e) {

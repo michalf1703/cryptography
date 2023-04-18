@@ -7,7 +7,6 @@ public class DES
 {   class DESKeyException extends Exception
 {public DESKeyException(String wiadomosc){super(wiadomosc);};
 }
-
     public DES()
     {try{setKeyHex("0123456789ABCDEF");}catch (DESKeyException e){};
     }
@@ -40,6 +39,7 @@ public class DES
             61, 53, 45, 37, 29, 21, 13, 5,
             63, 55, 47, 39, 31, 23, 15, 7};
 
+    //permutacja końcowa
     final byte[] IPplus = new byte[] {
             40, 8, 48, 16, 56, 24, 64, 32,
             39, 7, 47, 15, 55, 23, 63, 31,
@@ -49,16 +49,6 @@ public class DES
             35, 3, 43, 11, 51, 19, 59, 27,
             34, 2, 42, 10, 50, 18, 58, 26,
             33, 1, 41, 9, 49, 17, 57, 25};
-
-    // metoda wykonująca permutację początkową
-    private byte[] initialPermutation(byte[] wiadomosc) {
-        return bicik.selectBits(wiadomosc, IP);
-    }
-
-    private byte[] finalPermutation(byte[] wiadomosc) {
-        return bicik.selectBits(wiadomosc, IPplus);
-    }
-
 
 
     //w sBlokach podczas szyfrowania ma miejsce operacja podstawienia; za kazde sześć bitów wejściwych podstawia się cztery bity wyjściowe
@@ -105,7 +95,6 @@ public class DES
                     2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11
             };
 
-
     //Ustawia klucz ze stringa którego wartości są interpretowane jako zapis HEX
     //dodatkowo sprawdza poprawnosc klucza
     public void setKeyHex(String klucz) throws DESKeyException
@@ -117,7 +106,6 @@ public class DES
         }
 
     }
-
 
     //sprawdza poprawność klucza; klucz musi mieć długość równą 64 bity (8 bajtów)
     public boolean testKlucza() throws DESKeyException
@@ -155,12 +143,12 @@ public class DES
         return deszyfrowanie(wiadomosc, runda);
     }
 
-
     //szyfruje 64 bity - wchodzi 64 bitowy blok tekstu jawnego ---> wychodzi 64 bitowy blok szyfru
     private byte[] szyfrowanie(byte[] wiadomosc, int runda) throws Exception {
         if (wiadomosc.length != 8) {
             throw new Exception("Część wiadomości nie ma 8 bajtów długości");
         }
+        //perumtacja poczatkowa, jesli jest to pierwsza opracja
         if (runda == 1) {
             wiadomosc = bicik.selectBits(wiadomosc, IP );
         }
@@ -177,6 +165,7 @@ public class DES
             lewy = rBackup;
         }
         byte[] lewy_prawy = koncowyBlok(lewy, prawy);
+        //permutacja koncowa po ostatniej operacji
         if (runda == 3) {
             lewy_prawy = bicik.selectBits(lewy_prawy, IPplus );
         }
@@ -207,14 +196,14 @@ public class DES
             lewy = rBackup;
         }
 
-        byte[] lr = koncowyBlok(lewy, prawy);
+        byte[] left_right = koncowyBlok(lewy, prawy);
 
         // Permutacja końcowa
         if(runda == 3) {
-            lr = bicik.selectBits(lr, IPplus );
+            left_right = bicik.selectBits(left_right, IPplus );
         }
 
-        return lr;
+        return left_right;
     }
 
     //wykonujemy operacje bitowe tak aby bity odpowiedzialne za lewą stronę bloku znalazły się
@@ -235,14 +224,6 @@ public class DES
             }
         }
         return blokWyjsciowy;
-    }
-
-    public byte[] permute(byte[] key, byte[] permutationTable) {
-        byte[] permuted = new byte[permutationTable.length / 8];
-        for (int i = 0; i < permutationTable.length; i++) {
-            bicik.setBit(permuted, bicik.getBit(key, permutationTable[i]), i + 1);
-        }
-        return permuted;
     }
 
     private byte[] wyznaczPrawyBlok(byte[] blokWejsciowy)
@@ -266,6 +247,7 @@ public class DES
         return blokWyjsciowy;
     }
 
+    //TUTAJ JUZ WSZYTKIE OPERACJE BITOWE
     //nie używamy tablicy premutacji E, tylko odpowiednich operacji bitowych, ktore pozwalają nam rozszerzyć blok z 32 na 48 bitów
     private byte[] rozszerzBlok(byte[] blok)
     {
@@ -441,7 +423,6 @@ public class DES
         } catch (Exception ex) { };
         return null;
     }
-
 
 ///////////////////////GENEROWANIE PODKLUCZY//////////////
 //początkowo 64 bitowy klucz jest redukowany do 56-bitowego klucza przez pominiecie bitow parzystosci

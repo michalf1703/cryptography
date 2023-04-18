@@ -1,8 +1,6 @@
 package com.example.des3;
 
 import javax.swing.*;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public class BitOperations {
     public BitOperations(){}
