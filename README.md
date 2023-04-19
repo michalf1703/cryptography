@@ -10,3 +10,6 @@ Task1. Implementation of the 3DES encryption algorithm in java
 
 
 > GitHub [@michalf1703](https://github.com/michalf1703)
+
+> GitHub [@MushroomArturek](https://github.com/MushroomArturek)
+
