@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 
 public class HelloController {
 
+    ElGamal elGamal = new ElGamal();
     @FXML
     private Button bntSzyfrowanie;
 
@@ -60,6 +61,11 @@ public class HelloController {
 
     @FXML
     void btnGenerujKlucz(ActionEvent event) {
+        elGamal.generateKey();
+        textField1.setText(elGamal.g.toString(16));
+        textField2.setText(elGamal.h.toString(16));
+        textField3.setText(elGamal.a.toString(16));
+        textField4.setText(elGamal.N.toString(16));
 
     }
 
