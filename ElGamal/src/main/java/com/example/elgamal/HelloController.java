@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 
 public class HelloController {
@@ -118,6 +119,18 @@ public class HelloController {
 
     @FXML
     void btnZapiszPlikTekst(ActionEvent event) {
+        FileDialog dialog = new FileDialog((Frame)null, "Wybierz plik", FileDialog.SAVE);
+        dialog.setVisible(true);
+        String fileName = dialog.getFile();
+        if (fileName != null) {
+            String filePath = dialog.getDirectory() + fileName;
+            try {
+                pliczek.zapiszDoPliku(wczytaj_tekst.getText().getBytes(), filePath);
+            }
+            catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Problem z zapisem do pliku" + filePath, "Problem z zapisem do pliku", JOptionPane.ERROR_MESSAGE);
+            }
+        }
 
     }
 
