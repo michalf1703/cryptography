@@ -5,10 +5,17 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+
+import javax.swing.*;
+import java.io.File;
 
 public class HelloController {
 
+    FileOperations pliczek = new FileOperations();
     ElGamal elGamal = new ElGamal();
+    private byte tekst[];
+    private File plikOdczytuTekstu;
     @FXML
     private Button bntSzyfrowanie;
 
@@ -86,6 +93,21 @@ public class HelloController {
 
     @FXML
     void btnWczytajPlikTekst(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Wybierz plik");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Wszystkie pliki", "*.*"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            String pom = selectedFile.getAbsolutePath();
+            plikOdczytuTekstu = new File(pom);
+            try {
+                tekst = pliczek.wczytajZpliku(pom);
+                wczytaj_tekst.setText(new String(tekst));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Problem z otworzeniem pliku" + pom, "Problem z otworzeniem pliku", JOptionPane.ERROR_MESSAGE);
+            }
+        }
 
     }
 
