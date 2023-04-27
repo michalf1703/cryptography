@@ -16,7 +16,8 @@ public class HelloController {
     FileOperations pliczek = new FileOperations();
     ElGamal elGamal = new ElGamal();
     private byte tekst[];
-    private File plikOdczytuTekstu;
+    private File plikOdczytuTekstu,plikOdczytuszyfr, plikzapisuSzyfr;
+    private byte szyfr[];
     @FXML
     private Button bntSzyfrowanie;
 
@@ -37,6 +38,7 @@ public class HelloController {
 
     @FXML
     private Button deszyfruj;
+
 
     @FXML
     private TextField szyfruj_plik;
@@ -114,6 +116,19 @@ public class HelloController {
 
     @FXML
     void btnWczytajSzyfrPlik(ActionEvent event) {
+        FileDialog fd = new FileDialog(new JFrame(), "Wybierz plik", FileDialog.LOAD);
+        fd.setVisible(true);
+        String fileName = fd.getFile();
+        if (fileName != null) {
+            String pom = fd.getDirectory() + fileName;
+            plikOdczytuszyfr = new File(pom);
+            try {
+                szyfr = pliczek.wczytajZpliku(pom);
+                szyfruj_plik.setText(new String(szyfr));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Problem z otworzeniem pliku" + pom, "Problem z otworzeniem pliku", JOptionPane.ERROR_MESSAGE);
+            }
+        }
 
     }
 
