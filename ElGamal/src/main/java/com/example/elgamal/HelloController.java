@@ -151,6 +151,19 @@ public class HelloController {
 
     @FXML
     void btnZapiszSzyfr(ActionEvent event) {
+        FileDialog fd = new FileDialog((Frame)null, "Zapisz plik", FileDialog.SAVE);
+        fd.setVisible(true);
+        String fileName = fd.getFile();
+        String directory = fd.getDirectory();
+        if (fileName != null && directory != null) {
+            String path = directory + fileName;
+            //  File file = new File(path);
+            try {
+                pliczek.zapiszDoPliku(szyfruj_plik.getText().getBytes(), path);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Problem z zapisem do pliku " + path, "Problem z zapisem do pliku", JOptionPane.ERROR_MESSAGE);
+            }
+        }
 
     }
 
