@@ -16,6 +16,7 @@ public class HelloController {
 
     FileOperations pliczek = new FileOperations();
     ElGamal elGamal = new ElGamal();
+    AlgorithmOperations algorithmOperations = new AlgorithmOperations();
     private byte tekst[];
     private File plikOdczytuTekstu,plikOdczytuszyfr, plikzapisuSzyfr;
     private byte szyfr[];
@@ -90,7 +91,7 @@ public class HelloController {
             reczna_edycja_klucza=false;
         }
 
-        String spom=new String(elGamal.hexToBytes(szyfruj_plik.getText()));
+        String spom=new String(algorithmOperations.hexToBytes(szyfruj_plik.getText()));
             wczytaj_tekst.setText(elGamal.decryptFromStringToString(spom));
 
     } catch(ElGamal.ElGamalKeyException e){JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
@@ -142,7 +143,7 @@ public class HelloController {
                 reczna_edycja_klucza=false;
             }
 
-            else szyfruj_plik.setText(elGamal.bytesToHex(elGamal.encryptFromStringToString(wczytaj_tekst.getText()).getBytes()));
+            else szyfruj_plik.setText(algorithmOperations.bytesToHex(elGamal.encryptFromStringToString(wczytaj_tekst.getText()).getBytes()));
 
         } catch(ElGamal.ElGamalKeyException e){JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
         catch(NumberFormatException  e1){JOptionPane.showMessageDialog(null, "Wartość klucza musi być podana w systemie szesnastkowym!", "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
