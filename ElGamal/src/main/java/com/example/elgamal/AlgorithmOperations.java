@@ -165,21 +165,18 @@ public class AlgorithmOperations {
         }
         return outputStream.toByteArray();
     }
-    public static void zapiszDoPlikuTabliceBigInt(BigInteger dane[])
+    //zapisuje do pliku tablicę BigIntegerów
+    public static void zapiszDoPlikuTabliceBigInt(BigInteger dane[], String nazwa_pliku)
     {
         byte[] tab;
         try {
-            FileChooser fileChooser = new FileChooser();
-            File file = fileChooser.showOpenDialog(null);
-            OutputStream outputStream2 = new FileOutputStream(file.getPath());
-            String sciezka = file.getPath();
+            File file = new File(nazwa_pliku);
+            FileOutputStream fos = new FileOutputStream(file);
             for(int i = 0; i < dane.length; i++)
             { if(dane[i].equals(BigInteger.ZERO))
             { tab = new byte[1];
                 tab[0] = '\000';
-                //file.write(tab);
-                outputStream2.write(tab, 0,tab.length);
-               // outputStream2.close();
+                fos.write(tab);
             }
             else
             { tab = dane[i].toByteArray();
@@ -188,11 +185,10 @@ public class AlgorithmOperations {
                 if(tab.length == 30) tab = dodajZero(tab);
                 if(i == dane.length-1) // usun nulle z uzupelnienia
                     tab = podtablicaBezZer(tab);
-                     outputStream2.write(tab, 0,tab.length);
-                    //outputStream2.close();
+                fos.write(tab);
             }
             }
-            outputStream2.close();
+            fos.close();
         } catch (FileNotFoundException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
     }
     //dodaje zero do tablicy bajtów
@@ -216,19 +212,30 @@ public class AlgorithmOperations {
             wynik[j] = tab.get(i).byteValue();
         return wynik;
     }
-    public static BigInteger[] wczytajZPlikuTabliceBigInt(File file)
-    {
-        BigInteger[] array = new BigInteger[1];
+    //wczytuje dane z pliku do tabliy BigIntegerów
+    public static BigInteger[] readBigIntegersFromFile(File file) {
+        //File file = new File(fileName);
+        Scanner scanner = null;
+
         try {
-            Scanner sc = new Scanner(file);
-            int i = 0;
-            while(sc.hasNextBigInteger())
-            { if(i > 0) array = Arrays.copyOf(array, array.length+1);
-                array[i] = sc.nextBigInteger();
-                i++;
-            }
-            sc.close();
-        } catch (FileNotFoundException e) {e.printStackTrace();}
-        return array;
+            scanner = new Scanner(file);
+        } catch (FileNotFoundException e) {
+            System.out.println("Nie znaleziono pliku: ");
+            e.printStackTrace();
+        }
+
+        int n = scanner.nextInt();
+        BigInteger[] bigIntegers = new BigInteger[n];
+
+        for (int i = 0; i < n; i++) {
+            bigIntegers[i] = scanner.nextBigInteger();
+        }
+
+        scanner.close();
+
+        return bigIntegers;
     }
 }
+
+
+

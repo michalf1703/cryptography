@@ -28,7 +28,9 @@ public class ElGamalController {
     private BigInteger[] deszyfr;
     private BigInteger [] szyfr_plik_binarny;
     private BigInteger [] deszyfr_plik_binarny;
-    private BigInteger[] plik_binarny_szyfr, odczytywanko;
+    private BigInteger[] plik_binarny_szyfr;
+    private BigInteger[] odczytywanko;
+    private BigInteger dupeczka, deszyfr123;
     private boolean reczna_edycja_klucza=false;
     @FXML
     private Button bntSzyfrowanie;
@@ -120,15 +122,15 @@ public class ElGamalController {
 
     @FXML
     void btnOdszyfrujPlikBinarny(ActionEvent event) throws IOException {
-        File file = fileChooser.showOpenDialog(null);
-        odczytywanko = algorithmOperations.wczytajZPlikuTabliceBigInt(file);
         elGamal.g= new BigInteger(textField1.getText(),16);
         elGamal.a= new BigInteger(textField3.getText(),16);
         elGamal.N= new BigInteger(textField4.getText(),16);
         elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
         BigInteger h=new BigInteger(textField2.getText(),16);
-        deszyfr_plik_binarny = elGamal.decryptToBigInt(odczytywanko);
-        algorithmOperations.zapiszDoPlikuTabliceBigInt(deszyfr_plik_binarny);
+        if (!elGamal.h.equals(h))
+        {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
+            textField2.setText(elGamal.h.toString(16));
+        }
 
 
 
@@ -153,7 +155,7 @@ public class ElGamalController {
         }
         String hexString = sb.toString();
         szyfruj_plik.setText(hexString);
-        algorithmOperations.zapiszDoPlikuTabliceBigInt(plik_binarny_szyfr);
+        algorithmOperations.zapiszDoPlikuTabliceBigInt(plik_binarny_szyfr,"zakodowane");
 
 
     }
