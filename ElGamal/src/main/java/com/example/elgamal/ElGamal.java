@@ -1,4 +1,5 @@
 package com.example.elgamal;
+import javax.swing.*;
 import java.lang.*;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -73,6 +74,24 @@ public class ElGamal {
         }
         return hexText.toString();
     }
+
+    public static byte[] hexToBytes(String tekst)
+    {
+        if (tekst == null) { return null;}
+        else if (tekst.length() < 2) { return null;}
+        else { if (tekst.length()%2!=0)tekst+='0';
+            int dl = tekst.length() / 2;
+            byte[] wynik = new byte[dl];
+            for (int i = 0; i < dl; i++)
+            { try{
+                wynik[i] = (byte) Integer.parseInt(tekst.substring(i * 2, i * 2 + 2), 16);
+            }catch(NumberFormatException e){
+                JOptionPane.showMessageDialog(null, "Problem z przekonwertowaniem HEX->BYTE.\n Sprawdź wprowadzone dane.", "Problem z przekonwertowaniem HEX->BYTE", JOptionPane.ERROR_MESSAGE); }
+            }
+            return wynik;
+        }
+    }
+
 
     public BigInteger[] encrypt(byte[] message)
     {      //generujemy nowe r dla każdego szyfrowania
