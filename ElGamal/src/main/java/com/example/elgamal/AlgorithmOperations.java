@@ -1,7 +1,11 @@
 package com.example.elgamal;
 
 import javax.swing.*;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 
 public class AlgorithmOperations {
     /**
@@ -118,6 +122,21 @@ public class AlgorithmOperations {
             // Zwrócenie tablicy bajtów
             return wynik;
         }
+    }
+    public byte[] bigIntegerArrayToByteArray(BigInteger[] bigIntArray) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        try {
+            for (BigInteger bi : bigIntArray) {
+                byte[] bytes = bi.toByteArray();
+                // zapisz długość bajtów jako int
+                outputStream.write(ByteBuffer.allocate(4).putInt(bytes.length).array());
+                // zapisz bajty
+                outputStream.write(bytes);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return outputStream.toByteArray();
     }
 
 }
