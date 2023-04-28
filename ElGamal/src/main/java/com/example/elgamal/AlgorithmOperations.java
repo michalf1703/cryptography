@@ -2,7 +2,6 @@ package com.example.elgamal;
 
 import javax.swing.*;
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -63,7 +62,31 @@ public class AlgorithmOperations {
      * @param bytes     tablica bajtów, którą chcemy skonwertować na ciąg znaków w systemie heksadecymalnym
      * @return          ciąg znaków reprezentujący daną tablicę bajtów w systemie heksadecymalnym
      */
-    public static String bytesToHex(byte bytes[])
+    public static String bytesToHex(byte[] bytes)
+    {
+        StringBuilder hexText = new StringBuilder();
+
+        for (int i = 0; i < bytes.length; i++)
+        {
+            // Konwertuj bajt na wartość dodatnią
+            int positiveValue = bytes[i] & 0x000000FF;
+
+            // Konwertuj wartość dodatnią na wartość w systemie heksadecymalnym
+            String hexValue = Integer.toHexString(positiveValue);
+
+            // Jeśli wartość heksadecymalna ma tylko jedną cyfrę, dodaj zero na początek
+            if (hexValue.length() < 2)
+            {
+                hexText.append("0");
+            }
+
+            // Dodaj wartość heksadecymalną do ciągu wynikowego
+            hexText.append(hexValue);
+        }
+
+        return hexText.toString();
+    }
+    public static String bytesToHex2(byte[] bytes)
     {
         StringBuilder hexText = new StringBuilder();
 
