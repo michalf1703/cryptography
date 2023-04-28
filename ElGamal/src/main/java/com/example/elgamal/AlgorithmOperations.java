@@ -1,10 +1,14 @@
 package com.example.elgamal;
 
+import javafx.stage.FileChooser;
+
 import javax.swing.*;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class AlgorithmOperations {
     /**
@@ -161,5 +165,70 @@ public class AlgorithmOperations {
         }
         return outputStream.toByteArray();
     }
-
+    public static void zapiszDoPlikuTabliceBigInt(BigInteger dane[])
+    {
+        byte[] tab;
+        try {
+            FileChooser fileChooser = new FileChooser();
+            File file = fileChooser.showOpenDialog(null);
+            OutputStream outputStream2 = new FileOutputStream(file.getPath());
+            String sciezka = file.getPath();
+            for(int i = 0; i < dane.length; i++)
+            { if(dane[i].equals(BigInteger.ZERO))
+            { tab = new byte[1];
+                tab[0] = '\000';
+                //file.write(tab);
+                outputStream2.write(tab, 0,tab.length);
+               // outputStream2.close();
+            }
+            else
+            { tab = dane[i].toByteArray();
+                // byteArray powinna miec długosc 31
+                if(tab[0] == '\000' && tab.length == 32) tab = getSubarray(tab, 1, tab.length);
+                if(tab.length == 30) tab = dodajZero(tab);
+                if(i == dane.length-1) // usun nulle z uzupelnienia
+                    tab = podtablicaBezZer(tab);
+                     outputStream2.write(tab, 0,tab.length);
+                    //outputStream2.close();
+            }
+            }
+            outputStream2.close();
+        } catch (FileNotFoundException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
+    }
+    //dodaje zero do tablicy bajtów
+    public static byte[] dodajZero(byte dane[])
+    {
+        byte[] wynik = new byte[dane.length+1];
+        wynik[0] = '\000';
+        for(int i = 0; i < dane.length; i++) wynik[i+1] = dane[i];
+        return wynik;
+    }
+    //zwraca tablice z podanej tablicy z powycinanymi zerami
+    public static byte[] podtablicaBezZer(byte dane[])
+    {
+        ArrayList<Byte> tab = new ArrayList<Byte>();
+        for(int i = dane.length-1; i >= 0; i--)
+        {  if(dane[i] == '\000') continue;
+        else tab.add(dane[i]);
+        }
+        byte[] wynik = new byte[tab.size()];
+        for(int j = 0, i = tab.size()-1; i >= 0; i--, j++)
+            wynik[j] = tab.get(i).byteValue();
+        return wynik;
+    }
+    public static BigInteger[] wczytajZPlikuTabliceBigInt(File file)
+    {
+        BigInteger[] array = new BigInteger[1];
+        try {
+            Scanner sc = new Scanner(file);
+            int i = 0;
+            while(sc.hasNextBigInteger())
+            { if(i > 0) array = Arrays.copyOf(array, array.length+1);
+                array[i] = sc.nextBigInteger();
+                i++;
+            }
+            sc.close();
+        } catch (FileNotFoundException e) {e.printStackTrace();}
+        return array;
+    }
 }

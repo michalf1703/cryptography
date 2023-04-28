@@ -36,7 +36,7 @@ public class ElGamal {
     }
 
 
-    public BigInteger[] encrypt(byte[] message) {
+    public BigInteger[] encryptToBigInt(byte[] message) {
 
         // generujemy nowe r dla każdego szyfrowania
         r = BigInteger.probablePrime(keyLen, new Random());
