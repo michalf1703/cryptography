@@ -44,7 +44,7 @@ public class ElGamal {
         {
             for (int i = 0, j=0; i < chunks; i++,j+=2)
             {
-                byte[] pom = algorithmOperations.podtablica(message, ileZnakow*i, ileZnakow*(i+1));
+                byte[] pom = algorithmOperations.getSubarray(message, ileZnakow*i, ileZnakow*(i+1));
                 cipher[j] = new BigInteger(1, pom);
                 cipher[j] = cipher[j].multiply(h.modPow(r,N)).mod(N);//C2
                 cipher[j+1] = g.modPow(r,N);//C1
@@ -54,12 +54,12 @@ public class ElGamal {
         {
             for (int i = 0, j=0; i < chunks-1; i++,j+=2)
             {
-                byte[] pom = algorithmOperations.podtablica(message, ileZnakow*i, ileZnakow*(i+1));
+                byte[] pom = algorithmOperations.getSubarray(message, ileZnakow*i, ileZnakow*(i+1));
                 cipher[j] = new BigInteger(1, pom);
                 cipher[j] = cipher[j].multiply(h.modPow(r,N)).mod(N);//C2
                 cipher[j+1] = g.modPow(r,N);//C1
             }
-            byte[] pom = algorithmOperations.podtablica(message, ileZnakow*(chunks-1), message.length);
+            byte[] pom = algorithmOperations.getSubarray(message, ileZnakow*(chunks-1), message.length);
             cipher[(chunks-1)*2] = new BigInteger(1, pom);
             cipher[(chunks-1)*2] = cipher[(chunks-1)*2].multiply(h.modPow(r,N)).mod(N);//C2
             cipher[((chunks-1)*2)+1] = g.modPow(r,N);//C1
@@ -82,7 +82,7 @@ public class ElGamal {
         for (int i = 0,j=0; i < chunks; i++,j+=2)
         {
             String s = message.substring(ileZnakow*i,ileZnakow*(i+1));
-            cipher[j] = algorithmOperations.stringToBigInt(s);
+            cipher[j] = algorithmOperations.stringToBigInteger(s);
             cipher[j] = cipher[j].multiply(h.modPow(r,N)).mod(N);//C2
             cipher[j+1] = g.modPow(r,N);//C1
         }
@@ -102,7 +102,7 @@ public class ElGamal {
     {
         String s = new String();
         for (int i = 0; i < cipher.length; i+=2)
-        { s += algorithmOperations.bigIntToString(cipher[i].multiply(cipher[i+1].modPow(a, N).modInverse(N)).mod(N));
+        { s += algorithmOperations.bigIntegerToString(cipher[i].multiply(cipher[i+1].modPow(a, N).modInverse(N)).mod(N));
         }
         return s;
     }
