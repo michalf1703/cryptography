@@ -23,7 +23,9 @@ public class ElGamalController {
     private byte tekst[];
     private File plikOdczytuTekstu,plikOdczytuszyfr, plikzapisuSzyfr;
     private byte[] szyfr;
-    private byte[] szyfr2, deszyfr1;
+    private BigInteger[] deszyfr_kolejny;
+    private byte[] szyfr2,deszyfr2115;
+    private BigInteger[] deszyfr;
     private BigInteger [] szyfr_plik_binarny;
     private BigInteger [] deszyfr_plik_binarny;
     private BigInteger[] plik_binarny_szyfr;
@@ -118,6 +120,52 @@ public class ElGamalController {
 
     @FXML
     void btnOdszyfrujPlikBinarny(ActionEvent event) throws IOException {
+        elGamal.g= new BigInteger(textField1.getText(),16);
+        elGamal.a= new BigInteger(textField3.getText(),16);
+        elGamal.N= new BigInteger(textField4.getText(),16);
+        elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
+        BigInteger h=new BigInteger(textField2.getText(),16);
+
+        deszyfr2115 = algorithmOperations.hexToBytes(szyfruj_plik.getText());
+        BigInteger[] numbers = new BigInteger[deszyfr2115.length / 4];
+        for (int i = 0; i < numbers.length; i++) {
+            byte[] bytes = new byte[4];
+            System.arraycopy(deszyfr2115, i * 4, bytes, 0, 4);
+            numbers[i] = new BigInteger(bytes);
+        }
+        deszyfr_kolejny = elGamal.decryptToBigInt(numbers);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        for (int i = 0; i < deszyfr_kolejny.length; i++) {
+            byte[] bytes = deszyfr_kolejny[i].toByteArray();
+            baos.write(bytes, 0, bytes.length);
+        }
+        byte[] result = baos.toByteArray();
+
+        File file1 = fileChooser.showOpenDialog(null);
+        OutputStream outputStream2 = new FileOutputStream(file1.getPath());
+        outputStream2.write(result, 0,result.length);
+        outputStream2.close();
+
+        /*
+        BigInteger[] encryptedBigInts = new BigInteger[content.length/2];
+        for (int i = 0; i < content.length; i += 2) {
+            byte[] bytes = Arrays.copyOfRange(content, i, i+2);
+            encryptedBigInts[i/2] = new BigInteger(bytes);
+        }
+        deszyfr = elGamal.decryptToBigInt(encryptedBigInts);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        for (BigInteger number : deszyfr) {
+            byte[] bytes = number.toByteArray();
+            outputStream.write(bytes, 0, bytes.length);
+        }
+        byte[] output = outputStream.toByteArray();
+        File file1 = fileChooser.showOpenDialog(null);
+        OutputStream outputStream2 = new FileOutputStream(file1.getPath());
+        outputStream2.write(output, 0,output.length);
+        outputStream2.close();
+*/
 
 
     }
