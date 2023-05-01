@@ -15,6 +15,7 @@ public class ElGamal {
 
     BigInteger g,a,h,r,rm1,N,Nm1;
     MessageDigest digest;
+    MillerRabin test_pierwszosci;
     int keyLen=512; //ta wartość daje długość a=512
     int ilZnHex=keyLen/4;//ilość znaków hex wyświetlanych w polu klucza
     Random random=new Random();
@@ -40,52 +41,57 @@ public class ElGamal {
 
         // generujemy nowe r dla każdego szyfrowania
         r = BigInteger.probablePrime(keyLen, new Random());
-        while (true) {
-            if (r.gcd(Nm1).equals(BigInteger.ONE)) {
-                break;
+        if(test_pierwszosci.isPrime(r)== true ) {
+
+            while (true) {
+                if (r.gcd(Nm1).equals(BigInteger.ONE)) {
+                    break;
+                } else {
+                    r = r.nextProbablePrime();
+                }
+            }
+        }
+        else  {JOptionPane.showMessageDialog(null, "Wartość r nie jest liczba pierwsza!", "Problem z wylosowanym r", JOptionPane.ERROR_MESSAGE);}
+            // ustalamy ile znaków będzie w jednym bloku
+            int ileZnakow = (a.bitLength() - 1) / 8;
+
+            // sprawdzamy czy wiadomość jest podzielna przez ileZnakow
+            boolean reszta = false;
+            int chunks = 0;
+            if (message.length % ileZnakow != 0) {
+                chunks = (message.length / ileZnakow) + 1;
+                reszta = true;
             } else {
-                r = r.nextProbablePrime();
+                chunks = message.length / ileZnakow;
             }
-        }
 
-        // ustalamy ile znaków będzie w jednym bloku
-        int ileZnakow = (a.bitLength() - 1) / 8;
+            // inicjalizujemy tablicę na zaszyfrowane bloki
+            BigInteger[] cipher = new BigInteger[chunks * 2];
 
-        // sprawdzamy czy wiadomość jest podzielna przez ileZnakow
-        boolean reszta = false;
-        int chunks = 0;
-        if (message.length % ileZnakow != 0) {
-            chunks = (message.length / ileZnakow) + 1;
-            reszta = true;
-        } else {
-            chunks = message.length / ileZnakow;
-        }
-
-        // inicjalizujemy tablicę na zaszyfrowane bloki
-        BigInteger[] cipher = new BigInteger[chunks * 2];
-
-        // dzielimy wiadomość na bloki i szyfrujemy każdy z nich
-        if (!reszta) {
-            for (int i = 0, j = 0; i < chunks; i++, j += 2) {
-                byte[] pom = algorithmOperations.getSubarray(message, ileZnakow * i, ileZnakow * (i + 1));
-                cipher[j] = new BigInteger(1, pom);
-                cipher[j] = cipher[j].multiply(h.modPow(r, N)).mod(N); // C2
-                cipher[j + 1] = g.modPow(r, N); // C1
+            // dzielimy wiadomość na bloki i szyfrujemy każdy z nich
+            if (!reszta) {
+                for (int i = 0, j = 0; i < chunks; i++, j += 2) {
+                    byte[] pom = algorithmOperations.getSubarray(message, ileZnakow * i, ileZnakow * (i + 1));
+                    cipher[j] = new BigInteger(1, pom);
+                    cipher[j] = cipher[j].multiply(h.modPow(r, N)).mod(N); // C2
+                    cipher[j + 1] = g.modPow(r, N); // C1
+                }
+            } else {
+                for (int i = 0, j = 0; i < chunks - 1; i++, j += 2) {
+                    byte[] pom = algorithmOperations.getSubarray(message, ileZnakow * i, ileZnakow * (i + 1));
+                    cipher[j] = new BigInteger(1, pom);
+                    cipher[j] = cipher[j].multiply(h.modPow(r, N)).mod(N); // C2
+                    cipher[j + 1] = g.modPow(r, N); // C1
+                }
+                byte[] pom = algorithmOperations.getSubarray(message, ileZnakow * (chunks - 1), message.length);
+                cipher[(chunks - 1) * 2] = new BigInteger(1, pom);
+                cipher[(chunks - 1) * 2] = cipher[(chunks - 1) * 2].multiply(h.modPow(r, N)).mod(N); // C2
+                cipher[((chunks - 1) * 2) + 1] = g.modPow(r, N); // C1
             }
-        } else {
-            for (int i = 0, j = 0; i < chunks - 1; i++, j += 2) {
-                byte[] pom = algorithmOperations.getSubarray(message, ileZnakow * i, ileZnakow * (i + 1));
-                cipher[j] = new BigInteger(1, pom);
-                cipher[j] = cipher[j].multiply(h.modPow(r, N)).mod(N); // C2
-                cipher[j + 1] = g.modPow(r, N); // C1
-            }
-            byte[] pom = algorithmOperations.getSubarray(message, ileZnakow * (chunks - 1), message.length);
-            cipher[(chunks - 1) * 2] = new BigInteger(1, pom);
-            cipher[(chunks - 1) * 2] = cipher[(chunks - 1) * 2].multiply(h.modPow(r, N)).mod(N); // C2
-            cipher[((chunks - 1) * 2) + 1] = g.modPow(r, N); // C1
-        }
+
 
         return cipher;
+
     }
     /**
 
