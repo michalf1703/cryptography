@@ -8,8 +8,13 @@ public class MillerRabin {
     private static final int CERTAINTY = 10; // liczba iteracji testu
 
     public static boolean isPrime(BigInteger n) {
-        // Przyjmujemy, że liczby mniejsze lub równe 3 są pierwsze
-        if (n.compareTo(BigInteger.ONE) <= 0 || n.equals(BigInteger.valueOf(2)) || n.equals(BigInteger.valueOf(3))) {
+
+        // Sprawdzamy, czy liczba n jest większa niż 1 (liczba 1 nie jest liczba pierwsza)
+        if (n.compareTo(BigInteger.ONE) <= 0) {
+            return false;
+        }
+        // Przyjmujemy, że liczby 2 i 3 są pierwsze
+        if (n.equals(BigInteger.valueOf(2)) || n.equals(BigInteger.valueOf(3))) {
             return true;
         }
 
