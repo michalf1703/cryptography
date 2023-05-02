@@ -6,31 +6,21 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
-
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
 
 public class ElGamalController {
 
     FileOperations pliczek = new FileOperations();
     ElGamal elGamal = new ElGamal();
-    private FileChooser fileChooser = new FileChooser();
     AlgorithmOperations algorithmOperations = new AlgorithmOperations();
     private byte tekst[];
-    private File plikOdczytuTekstu,plikOdczytuszyfr, plikzapisuSzyfr;
+    private File plikOdczytuszyfr;
     private byte[] szyfr;
-    private BigInteger[] deszyfr_kolejny;
-    private byte[] szyfr2,deszyfr2115;
-    private BigInteger[] deszyfr;
-    private BigInteger [] szyfr_plik_binarny;
-    private BigInteger [] deszyfr_plik_binarny;
     private BigInteger[] plik_binarny_szyfr;
-    private BigInteger[] odczytywanko;
-    private BigInteger dupeczka, deszyfr123;
     private boolean reczna_edycja_klucza=false;
     @FXML
     private Button bntSzyfrowanie;
@@ -122,15 +112,7 @@ public class ElGamalController {
 
     @FXML
     void btnOdszyfrujPlikBinarny(ActionEvent event) throws IOException {
-        elGamal.g= new BigInteger(textField1.getText(),16);
-        elGamal.a= new BigInteger(textField3.getText(),16);
-        elGamal.N= new BigInteger(textField4.getText(),16);
-        elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
-        BigInteger h=new BigInteger(textField2.getText(),16);
-        if (!elGamal.h.equals(h))
-        {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
-            textField2.setText(elGamal.h.toString(16));
-        }
+
 
 
 
@@ -138,24 +120,6 @@ public class ElGamalController {
 
     @FXML
     void btnPlikBinarny(ActionEvent event) throws IOException {
-
-        File file = fileChooser.showOpenDialog(null);
-        String sciezka = file.getPath();
-        byte[] content = Files.readAllBytes(Paths.get(sciezka));
-        elGamal.g= new BigInteger(textField1.getText(),16);
-        elGamal.a= new BigInteger(textField3.getText(),16);
-        elGamal.N= new BigInteger(textField4.getText(),16);
-        elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
-        BigInteger h=new BigInteger(textField2.getText(),16);
-        plik_binarny_szyfr = elGamal.encryptToBigInt(content);
-        //////////////////////////////////////////////
-        StringBuilder sb = new StringBuilder();
-        for (BigInteger num : plik_binarny_szyfr) {
-            sb.append(num.toString(16));
-        }
-        String hexString = sb.toString();
-        szyfruj_plik.setText(hexString);
-        algorithmOperations.zapiszDoPlikuTabliceBigInt(plik_binarny_szyfr,"zakodowane");
 
 
     }
@@ -201,7 +165,6 @@ public class ElGamalController {
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             String pom = selectedFile.getAbsolutePath();
-            plikOdczytuTekstu = new File(pom);
             try {
                 tekst = pliczek.wczytajZpliku(pom);
                 wczytaj_tekst.setText(new String(tekst));
