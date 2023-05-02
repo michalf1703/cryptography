@@ -1,13 +1,10 @@
 package com.example.elgamal;
 
-import javafx.stage.FileChooser;
-
 import javax.swing.*;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class AlgorithmOperations {
@@ -19,7 +16,7 @@ public class AlgorithmOperations {
      * @param stop    indeks końcowy (wyłącznie) przedziału, z którego chcemy utworzyć podtablicę
      * @return          podtablica bajtów z danymi z danego przedziału
      */
-    public static byte[] getSubarray(byte data[], int start, int stop)
+    public static byte[] getSubarray(byte[] data, int start, int stop)
     {
         byte[] subArray = new byte[stop-start];
         for(int i = 0; start < stop; start++, i++) {
@@ -54,8 +51,8 @@ public class AlgorithmOperations {
     {
         byte[] bytes = n.toByteArray();
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bytes.length; i++) {
-            sb.append((char) bytes[i]);
+        for (byte aByte : bytes) {
+            sb.append((char) aByte);
         }
         return sb.toString();
     }
@@ -70,17 +67,15 @@ public class AlgorithmOperations {
     {
         StringBuilder hexText = new StringBuilder();
 
-        for (int i = 0; i < bytes.length; i++)
-        {
+        for (byte aByte : bytes) {
             // Konwertuj bajt na wartość dodatnią
-            int positiveValue = bytes[i] & 0x000000FF;
+            int positiveValue = aByte & 0x000000FF;
 
             // Konwertuj wartość dodatnią na wartość w systemie heksadecymalnym
             String hexValue = Integer.toHexString(positiveValue);
 
             // Jeśli wartość heksadecymalna ma tylko jedną cyfrę, dodaj zero na początek
-            if (hexValue.length() < 2)
-            {
+            if (hexValue.length() < 2) {
                 hexText.append("0");
             }
 
@@ -94,17 +89,15 @@ public class AlgorithmOperations {
     {
         StringBuilder hexText = new StringBuilder();
 
-        for (int i = 0; i < bytes.length; i++)
-        {
+        for (byte aByte : bytes) {
             // Konwertuj bajt na wartość dodatnią
-            int positiveValue = bytes[i] & 0x000000FF;
+            int positiveValue = aByte & 0x000000FF;
 
             // Konwertuj wartość dodatnią na wartość w systemie heksadecymalnym
             String hexValue = Integer.toHexString(positiveValue);
 
             // Jeśli wartość heksadecymalna ma tylko jedną cyfrę, dodaj zero na początek
-            if (hexValue.length() < 2)
-            {
+            if (hexValue.length() < 2) {
                 hexText.append("0");
             }
 
@@ -175,7 +168,6 @@ public class AlgorithmOperations {
             for(int i = 0; i < dane.length; i++)
             { if(dane[i].equals(BigInteger.ZERO))
             { tab = new byte[1];
-                tab[0] = '\000';
                 fos.write(tab);
             }
             else

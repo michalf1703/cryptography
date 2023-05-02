@@ -83,12 +83,12 @@ public class ElGamalController {
         try{
         if(reczna_edycja_klucza)
         {
-            if(textField1.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
-            if(textField1.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za długa.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
-            if(textField3.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
-            if(textField3.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za długa.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
-            if(textField4.getText().length()<elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
-            if(textField4.getText().length()>elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za długa.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
+            if(textField1.getText().length()<elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi " + textField1.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
+            if(textField1.getText().length()>elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość g jest za długa.\nWynosi " + textField1.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
+            if(textField3.getText().length()<elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi " + textField3.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
+            if(textField3.getText().length()>elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość a jest za długa.\nWynosi " + textField3.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
+            if(textField4.getText().length()<elGamal.ilZnHex+1)throw new ElGamal.ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi " + textField4.getText().length() + " .\nMusi wynosić " + (elGamal.ilZnHex + 1) + " znaków w systemie szesnastkowym.");
+            if(textField4.getText().length()>elGamal.ilZnHex+1)throw new ElGamal.ElGamalKeyException("Podana wartość N jest za długa.\nWynosi " + textField4.getText().length() + " .\nMusi wynosić " + (elGamal.ilZnHex + 1) + " znaków w systemie szesnastkowym.");
 
             elGamal.g= new BigInteger(textField1.getText(),16);
             elGamal.a= new BigInteger(textField3.getText(),16);
@@ -165,12 +165,12 @@ public class ElGamalController {
         try{
             if(reczna_edycja_klucza)
             {
-                if(textField1.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
-                if(textField1.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za długa.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
-                if(textField3.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
-                if(textField3.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za długa.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
-                if(textField4.getText().length()<elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
-                if(textField4.getText().length()>elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za długa.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
+                if(textField1.getText().length()<elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi " + textField1.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
+                if(textField1.getText().length()>elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość g jest za długa.\nWynosi " + textField1.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()<elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi " + textField3.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()>elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość a jest za długa.\nWynosi " + textField3.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
+                if(textField4.getText().length()<elGamal.ilZnHex+1)throw new ElGamal.ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi " + textField4.getText().length() + " .\nMusi wynosić " + (elGamal.ilZnHex + 1) + " znaków w systemie szesnastkowym.");
+                if(textField4.getText().length()>elGamal.ilZnHex+1)throw new ElGamal.ElGamalKeyException("Podana wartość N jest za długa.\nWynosi " + textField4.getText().length() + " .\nMusi wynosić " + (elGamal.ilZnHex + 1) + " znaków w systemie szesnastkowym.");
 
                 elGamal.g= new BigInteger(textField1.getText(),16);
                 elGamal.a= new BigInteger(textField3.getText(),16);
