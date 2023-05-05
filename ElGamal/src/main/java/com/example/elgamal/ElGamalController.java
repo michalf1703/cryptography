@@ -123,31 +123,31 @@ public class ElGamalController {
 
     @FXML
     void btnOdszyfrujPlikBinarny(ActionEvent event) throws Exception {
+/*
+        elGamal.g= new BigInteger(textField1.getText(),16);
+        elGamal.a= new BigInteger(textField3.getText(),16);
+        elGamal.N= new BigInteger(textField4.getText(),16);
+        elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
+        BigInteger h=new BigInteger(textField2.getText(),16);
+        if (!elGamal.h.equals(h))
+        {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
+            textField2.setText(elGamal.h.toString(16));
+        }
+        File file = fileChooser.showOpenDialog(null);
+        String sciezka = file.getPath();
+        byte[] content = Files.readAllBytes(Paths.get(sciezka));
+        BigInteger [] dane = elGamal.decryptToBigInt(content);
+        byte [] dane2 = algorithmOperations.bigIntToByteArray(dane);
+        File file1 = fileChooser.showOpenDialog(null);
+        OutputStream outputStream2 = new FileOutputStream(file1.getPath());
+        outputStream2.write(dane2, 0,dane2.length);
+        outputStream2.close();
 
-                elGamal.g= new BigInteger(textField1.getText(),16);
-                elGamal.a= new BigInteger(textField3.getText(),16);
-                elGamal.N= new BigInteger(textField4.getText(),16);
-                elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
-                BigInteger h=new BigInteger(textField2.getText(),16);
-                if (!elGamal.h.equals(h))
-                {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
-                 textField2.setText(elGamal.h.toString(16));
-                }
-                File file = fileChooser.showOpenDialog(null);
-                String sciezka = file.getPath();
-                byte[] content = Files.readAllBytes(Paths.get(sciezka));
-                BigInteger [] dane = elGamal.decryptToBigInt(content);
-                byte [] dane2 = algorithmOperations.bigIntToByteArray(dane);
-                File file1 = fileChooser.showOpenDialog(null);
-                OutputStream outputStream2 = new FileOutputStream(file1.getPath());
-                outputStream2.write(dane2, 0,dane2.length);
-                outputStream2.close();
+*/
 
 
 
-
-
-            }
+    }
 
 
 
@@ -156,7 +156,7 @@ public class ElGamalController {
 
     @FXML
     void btnPlikBinarny(ActionEvent event) throws IOException {
-        try{
+      /*  try{
             if(reczna_edycja_klucza)
             {
                 if(textField1.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
@@ -190,7 +190,7 @@ public class ElGamalController {
         catch(NumberFormatException  e1){JOptionPane.showMessageDialog(null, "Wartość klucza musi być podana w systemie szesnastkowym!", "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
         catch(Exception e2){JOptionPane.showMessageDialog(null, e2.getMessage(), "Wybierz plik", JOptionPane.ERROR_MESSAGE); }
 
-
+*/
 
     }
 

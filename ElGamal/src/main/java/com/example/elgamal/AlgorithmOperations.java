@@ -322,5 +322,19 @@ public class AlgorithmOperations {
         return result;
     }
 
+    public static BigInteger[] toBigIntegerArray(byte[] array) {
+        BigInteger[] result = new BigInteger[(array.length + 1) / 2];
+
+        for (int i = 0; i < array.length; i += 2) {
+            if (i + 1 < array.length) {
+                result[i / 2] = new BigInteger(new byte[]{array[i], array[i + 1]});
+            } else {
+                result[i / 2] = new BigInteger(new byte[]{array[i]});
+            }
+        }
+
+        return result;
+    }
+
 }
 
