@@ -6,21 +6,32 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.math.BigInteger;
-
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ElGamalController {
 
     FileOperations pliczek = new FileOperations();
     ElGamal elGamal = new ElGamal();
+    private FileChooser fileChooser = new FileChooser();
     AlgorithmOperations algorithmOperations = new AlgorithmOperations();
     private byte tekst[];
-    private File plikOdczytuszyfr;
+    private File plikOdczytuTekstu,plikOdczytuszyfr, plikzapisuSzyfr;
     private byte[] szyfr;
+    private BigInteger[] deszyfr_kolejny;
+    private byte[] szyfr2,deszyfr2115;
+    private BigInteger[] deszyfr;
+    private BigInteger [] szyfr_plik_binarny;
+    private BigInteger [] deszyfr_plik_binarny;
     private BigInteger[] plik_binarny_szyfr;
+    private BigInteger[] odczytywanko;
+    private BigInteger dupeczka, deszyfr123;
+    private byte deszyfr_binarka[];
     private boolean reczna_edycja_klucza=false;
     @FXML
     private Button bntSzyfrowanie;
@@ -71,32 +82,32 @@ public class ElGamalController {
     @FXML
     void btnDeszyfruj(ActionEvent event) {
         try{
-        if(reczna_edycja_klucza)
-        {
-            if(textField1.getText().length()<elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi " + textField1.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
-            if(textField1.getText().length()>elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość g jest za długa.\nWynosi " + textField1.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
-            if(textField3.getText().length()<elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi " + textField3.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
-            if(textField3.getText().length()>elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość a jest za długa.\nWynosi " + textField3.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
-            if(textField4.getText().length()<elGamal.ilZnHex+1)throw new ElGamal.ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi " + textField4.getText().length() + " .\nMusi wynosić " + (elGamal.ilZnHex + 1) + " znaków w systemie szesnastkowym.");
-            if(textField4.getText().length()>elGamal.ilZnHex+1)throw new ElGamal.ElGamalKeyException("Podana wartość N jest za długa.\nWynosi " + textField4.getText().length() + " .\nMusi wynosić " + (elGamal.ilZnHex + 1) + " znaków w systemie szesnastkowym.");
+            if(reczna_edycja_klucza)
+            {
+                if(textField1.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField1.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za długa.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za długa.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField4.getText().length()<elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
+                if(textField4.getText().length()>elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za długa.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
 
-            elGamal.g= new BigInteger(textField1.getText(),16);
-            elGamal.a= new BigInteger(textField3.getText(),16);
-            elGamal.N= new BigInteger(textField4.getText(),16);
-            elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
-            BigInteger h=new BigInteger(textField2.getText(),16);
-            if (!elGamal.h.equals(h))
-            {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
-                textField2.setText(elGamal.h.toString(16));
+                elGamal.g= new BigInteger(textField1.getText(),16);
+                elGamal.a= new BigInteger(textField3.getText(),16);
+                elGamal.N= new BigInteger(textField4.getText(),16);
+                elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
+                BigInteger h=new BigInteger(textField2.getText(),16);
+                if (!elGamal.h.equals(h))
+                {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
+                    textField2.setText(elGamal.h.toString(16));
+                }
+                reczna_edycja_klucza=false;
             }
-            reczna_edycja_klucza=false;
-        }
 
-        String spom=new String(algorithmOperations.hexToBytes(szyfruj_plik.getText()));
+            String spom=new String(algorithmOperations.hexToBytes(szyfruj_plik.getText()));
             wczytaj_tekst.setText(elGamal.decryptFromStringToString(spom));
 
-    } catch(ElGamal.ElGamalKeyException e){JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
-    catch(NumberFormatException  e1){JOptionPane.showMessageDialog(null, "Wartość klucza musi być podana w systemie szesnastkowym!", "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
+        } catch(ElGamal.ElGamalKeyException e){JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
+        catch(NumberFormatException  e1){JOptionPane.showMessageDialog(null, "Wartość klucza musi być podana w systemie szesnastkowym!", "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
 
     }
 
@@ -111,15 +122,74 @@ public class ElGamalController {
     }
 
     @FXML
-    void btnOdszyfrujPlikBinarny(ActionEvent event) throws IOException {
+    void btnOdszyfrujPlikBinarny(ActionEvent event) throws Exception {
+
+                elGamal.g= new BigInteger(textField1.getText(),16);
+                elGamal.a= new BigInteger(textField3.getText(),16);
+                elGamal.N= new BigInteger(textField4.getText(),16);
+                elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
+                BigInteger h=new BigInteger(textField2.getText(),16);
+                if (!elGamal.h.equals(h))
+                {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
+                 textField2.setText(elGamal.h.toString(16));
+                }
+                File file = fileChooser.showOpenDialog(null);
+                String sciezka = file.getPath();
+                byte[] content = Files.readAllBytes(Paths.get(sciezka));
+                BigInteger [] dane = elGamal.decryptToBigInt(content);
+                byte [] dane2 = algorithmOperations.bigIntToByteArray(dane);
+                File file1 = fileChooser.showOpenDialog(null);
+                OutputStream outputStream2 = new FileOutputStream(file1.getPath());
+                outputStream2.write(dane2, 0,dane2.length);
+                outputStream2.close();
 
 
 
 
-    }
+
+            }
+
+
+
+
+
 
     @FXML
     void btnPlikBinarny(ActionEvent event) throws IOException {
+        try{
+            if(reczna_edycja_klucza)
+            {
+                if(textField1.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField1.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za długa.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za długa.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField4.getText().length()<elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
+                if(textField4.getText().length()>elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za długa.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
+
+                elGamal.g= new BigInteger(textField1.getText(),16);
+                elGamal.a= new BigInteger(textField3.getText(),16);
+                elGamal.N= new BigInteger(textField4.getText(),16);
+                elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
+                BigInteger h=new BigInteger(textField2.getText(),16);
+                if (!elGamal.h.equals(h))
+                {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
+                    textField2.setText(elGamal.h.toString(16));
+                }
+                reczna_edycja_klucza=false;
+            }
+
+            else {
+                File file = fileChooser.showOpenDialog(null);
+                String sciezka = file.getPath();
+                byte[] content = Files.readAllBytes(Paths.get(sciezka));
+                BigInteger[] dane = elGamal.encrypt(content);
+                algorithmOperations.zapiszDoPlikuTabliceBigInt(dane,"zakodowane.pdf");
+            }
+
+        } catch(ElGamal.ElGamalKeyException e){JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
+        catch(NumberFormatException  e1){JOptionPane.showMessageDialog(null, "Wartość klucza musi być podana w systemie szesnastkowym!", "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
+        catch(Exception e2){JOptionPane.showMessageDialog(null, e2.getMessage(), "Wybierz plik", JOptionPane.ERROR_MESSAGE); }
+
 
 
     }
@@ -129,12 +199,12 @@ public class ElGamalController {
         try{
             if(reczna_edycja_klucza)
             {
-                if(textField1.getText().length()<elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi " + textField1.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
-                if(textField1.getText().length()>elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość g jest za długa.\nWynosi " + textField1.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
-                if(textField3.getText().length()<elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi " + textField3.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
-                if(textField3.getText().length()>elGamal.ilZnHex)throw new ElGamal.ElGamalKeyException("Podana wartość a jest za długa.\nWynosi " + textField3.getText().length() + " .\nMusi wynosić " + elGamal.ilZnHex + " znaki w systemie szesnastkowym.");
-                if(textField4.getText().length()<elGamal.ilZnHex+1)throw new ElGamal.ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi " + textField4.getText().length() + " .\nMusi wynosić " + (elGamal.ilZnHex + 1) + " znaków w systemie szesnastkowym.");
-                if(textField4.getText().length()>elGamal.ilZnHex+1)throw new ElGamal.ElGamalKeyException("Podana wartość N jest za długa.\nWynosi " + textField4.getText().length() + " .\nMusi wynosić " + (elGamal.ilZnHex + 1) + " znaków w systemie szesnastkowym.");
+                if(textField1.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField1.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za długa.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za długa.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField4.getText().length()<elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
+                if(textField4.getText().length()>elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za długa.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
 
                 elGamal.g= new BigInteger(textField1.getText(),16);
                 elGamal.a= new BigInteger(textField3.getText(),16);
@@ -165,6 +235,7 @@ public class ElGamalController {
         File selectedFile = fileChooser.showOpenDialog(null);
         if (selectedFile != null) {
             String pom = selectedFile.getAbsolutePath();
+            plikOdczytuTekstu = new File(pom);
             try {
                 tekst = pliczek.wczytajZpliku(pom);
                 wczytaj_tekst.setText(new String(tekst));

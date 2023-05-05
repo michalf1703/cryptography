@@ -3,6 +3,7 @@ package com.example.elgamal;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.math.BigInteger;
 
 public class FileOperations {
     public FileOperations() {}

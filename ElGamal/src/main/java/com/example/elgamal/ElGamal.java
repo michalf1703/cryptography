@@ -1,19 +1,26 @@
 package com.example.elgamal;
 import javax.swing.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.*;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Random;
+import java.io.ByteArrayOutputStream;
 
 public class ElGamal {
-    static class ElGamalKeyException extends Exception
-    {public ElGamalKeyException(String msg){super(msg);}
+    class ElGamalKeyException extends Exception
+    {public ElGamalKeyException(String msg){super(msg);};
     }
 
     AlgorithmOperations algorithmOperations = new AlgorithmOperations();
 
     BigInteger g,a,h,r,N,Nm1;
+    MillerRabin test_pierwszosci;
     int keyLen=512; //ta wartość daje długość a=512
     int ilZnHex=keyLen/4;//ilość znaków hex wyświetlanych w polu klucza
+    Random random=new Random();
 
     /**
      * Metoda generująca klucz szyfrujący.
@@ -32,11 +39,10 @@ public class ElGamal {
     }
 
 
-    public BigInteger[] encryptToBigInt(byte[] message) {
-
-        // generujemy nowe r dla każdego szyfrowania
-        r = BigInteger.probablePrime(keyLen, new Random());
-        if(MillerRabin.isPrime(r)== true ) {
+    public BigInteger[] encrypt(byte[] message)
+    {      //generujemy nowe r dla każdego szyfrowania
+        r = BigInteger.probablePrime(keyLen,new Random());
+        if(test_pierwszosci.isPrime(r)== true ) {
 
             while (true) {
                 if (r.gcd(Nm1).equals(BigInteger.ONE)) {
@@ -46,48 +52,44 @@ public class ElGamal {
                 }
             }
         }
-        else  {JOptionPane.showMessageDialog(null, "Wartość r nie jest liczba pierwsza!", "Problem z wylosowanym r", JOptionPane.ERROR_MESSAGE);}
-            // ustalamy ile znaków będzie w jednym bloku
-            int ileZnakow = (a.bitLength() - 1) / 8;
-
-            // sprawdzamy czy wiadomość jest podzielna przez ileZnakow
-            boolean reszta = false;
-            int chunks;
-            if (message.length % ileZnakow != 0) {
-                chunks = (message.length / ileZnakow) + 1;
-                reszta = true;
-            } else {
-                chunks = message.length / ileZnakow;
+        else  {
+            JOptionPane.showMessageDialog(null, "Wartość r nie jest liczba pierwsza!", "Problem z wylosowanym r", JOptionPane.ERROR_MESSAGE);}
+        int ileZnakow = (a.bitLength()-1)/8;
+        boolean reszta=false;
+        int chunks=0;
+        if(message.length % ileZnakow != 0){chunks = (message.length/ ileZnakow)+1;reszta=true;}
+        else chunks = message.length/ ileZnakow;
+        BigInteger[] cipher = new BigInteger[chunks * 2];
+        if(!reszta)
+        {
+            for (int i = 0, j=0; i < chunks; i++,j+=2)
+            {
+                byte[] pom = algorithmOperations.podtablica(message, ileZnakow*i, ileZnakow*(i+1));
+                cipher[j] = new BigInteger(1, pom);
+                cipher[j] = cipher[j].multiply(h.modPow(r,N)).mod(N);//C2
+                cipher[j+1] = g.modPow(r,N);//C1
             }
-
-            // inicjalizujemy tablicę na zaszyfrowane bloki
-            BigInteger[] cipher = new BigInteger[chunks * 2];
-
-            // dzielimy wiadomość na bloki i szyfrujemy każdy z nich
-            if (!reszta) {
-                for (int i = 0, j = 0; i < chunks; i++, j += 2) {
-                    byte[] pom = AlgorithmOperations.getSubarray(message, ileZnakow * i, ileZnakow * (i + 1));
-                    cipher[j] = new BigInteger(1, pom);
-                    cipher[j] = cipher[j].multiply(h.modPow(r, N)).mod(N); // C2
-                    cipher[j + 1] = g.modPow(r, N); // C1
-                }
-            } else {
-                for (int i = 0, j = 0; i < chunks - 1; i++, j += 2) {
-                    byte[] pom = AlgorithmOperations.getSubarray(message, ileZnakow * i, ileZnakow * (i + 1));
-                    cipher[j] = new BigInteger(1, pom);
-                    cipher[j] = cipher[j].multiply(h.modPow(r, N)).mod(N); // C2
-                    cipher[j + 1] = g.modPow(r, N); // C1
-                }
-                byte[] pom = AlgorithmOperations.getSubarray(message, ileZnakow * (chunks - 1), message.length);
-                cipher[(chunks - 1) * 2] = new BigInteger(1, pom);
-                cipher[(chunks - 1) * 2] = cipher[(chunks - 1) * 2].multiply(h.modPow(r, N)).mod(N); // C2
-                cipher[((chunks - 1) * 2) + 1] = g.modPow(r, N); // C1
+        }
+        else
+        {
+            for (int i = 0, j=0; i < chunks-1; i++,j+=2)
+            {
+                byte[] pom = algorithmOperations.podtablica(message, ileZnakow*i, ileZnakow*(i+1));
+                cipher[j] = new BigInteger(1, pom);
+                cipher[j] = cipher[j].multiply(h.modPow(r,N)).mod(N);//C2
+                cipher[j+1] = g.modPow(r,N);//C1
             }
-
+            byte[] pom = algorithmOperations.podtablica(message, ileZnakow*(chunks-1), message.length);
+            cipher[(chunks-1)*2] = new BigInteger(1, pom);
+            cipher[(chunks-1)*2] = cipher[(chunks-1)*2].multiply(h.modPow(r,N)).mod(N);//C2
+            cipher[((chunks-1)*2)+1] = g.modPow(r,N);//C1
+        }
 
         return cipher;
-
     }
+
+
+
     /**
 
      Metoda służąca do szyfrowania wiadomości.
@@ -104,16 +106,14 @@ public class ElGamal {
             if (r.gcd(Nm1).equals(BigInteger.ONE))break;
             else r=r.nextProbablePrime();
         int ileZnakow = (N.bitLength()-1)/8;
-        StringBuilder messageBuilder = new StringBuilder(message);
-        while (messageBuilder.length() % ileZnakow != 0)
-            messageBuilder.append(' ');
-        message = messageBuilder.toString();
+        while (message.length() % ileZnakow != 0)
+            message += ' ';
         int chunks = message.length()/ ileZnakow;
         BigInteger[] cipher = new BigInteger[chunks*2];
         for (int i = 0,j=0; i < chunks; i++,j+=2)
         {
             String s = message.substring(ileZnakow*i,ileZnakow*(i+1));
-            cipher[j] = AlgorithmOperations.stringToBigInteger(s);
+            cipher[j] = algorithmOperations.stringToBigInteger(s);
             cipher[j] = cipher[j].multiply(h.modPow(r,N)).mod(N);//C2
             cipher[j+1] = g.modPow(r,N);//C1
         }
@@ -128,11 +128,11 @@ public class ElGamal {
      */
     public String encryptFromStringToString(String message)
     {
-        StringBuilder str = new StringBuilder();
+        String str = new String();
         BigInteger[] bi_table = encrypt(message); //szyfrowanie wiadomości
-        for (BigInteger bigInteger : bi_table)
-            str.append(bigInteger).append("\n"); //łączenie poszczególnych części szyfrogramu w jeden String z separatorem "\n"
-        return str.toString();
+        for(int i = 0; i < bi_table.length; i++)
+            str += bi_table[i] + "\n"; //łączenie poszczególnych części szyfrogramu w jeden String z separatorem "\n"
+        return str;
     }
     /**
 
@@ -142,20 +142,16 @@ public class ElGamal {
      */
     public String decrypt(BigInteger[] cipher)
     {
-        StringBuilder s = new StringBuilder();
+        String s = new String();
         for (int i = 0; i < cipher.length; i+=2)
         {
-        //Odszyfrowanie pojedynczej części szyfrogramu i dodanie wyniku do Stringa s
-            s.append(AlgorithmOperations.bigIntegerToString(cipher[i].multiply(cipher[i + 1].modPow(a, N).modInverse(N)).mod(N)));
+            //Odszyfrowanie pojedynczej części szyfrogramu i dodanie wyniku do Stringa s
+            s += algorithmOperations.bigIntegerToString(cipher[i].multiply(cipher[i+1].modPow(a, N).modInverse(N)).mod(N));
         }
-        return s.toString();
+        return s;
     }
 
-    /**
-     -decryptToBigInt() - metoda deszyfrująca tablicę cipher na tablicę wynik zwracającą obiekty klasy BigInteger.
-     -len jako długość tablicy wynikowej (zakładając, że cipher ma parzystą długość).
-     -W decryptToBigInt() każda kolejna para liczb w tablicy cipher jest deszyfrowana zgodnie z algorytmem ElGamala i zapisywana w tablicy wynikowej wynik.
-     */
+
     public BigInteger[] decryptToBigInt(BigInteger[] cipher)
     {
         int len = cipher.length / 2;
@@ -167,6 +163,10 @@ public class ElGamal {
 
         return wynik;
     }
+
+
+
+
     /**
      -decryptFromStringToString() - metoda deszyfrująca łańcuch znaków cipher na łańcuch znaków odszyfrowanej wiadomości.
      -len jako długość tablicy wynikowej (zakładając, że cipher ma parzystą długość).
@@ -184,6 +184,8 @@ public class ElGamal {
 
         return decrypt(bi_table);
     }
+
+
 
 
 }
