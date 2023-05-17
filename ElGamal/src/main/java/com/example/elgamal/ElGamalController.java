@@ -2,6 +2,7 @@ package com.example.elgamal;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -12,7 +13,10 @@ import java.awt.*;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Base64;
 
 public class ElGamalController {
 
@@ -21,6 +25,8 @@ public class ElGamalController {
     private FileChooser fileChooser = new FileChooser();
     AlgorithmOperations algorithmOperations = new AlgorithmOperations();
     private byte tekst[];
+    EncryptedData encryptedMessageAsList = new EncryptedData();
+    private byte[] loadedFileContent;
     private File plikOdczytuTekstu,plikOdczytuszyfr, plikzapisuSzyfr;
     private byte[] szyfr;
     private BigInteger[] deszyfr_kolejny;
@@ -32,6 +38,8 @@ public class ElGamalController {
     private BigInteger[] odczytywanko;
     private BigInteger dupeczka, deszyfr123;
     private byte deszyfr_binarka[];
+    BigInteger dataHolder = null;
+    boolean isNegative = false;
     private boolean reczna_edycja_klucza=false;
     @FXML
     private Button bntSzyfrowanie;
@@ -123,40 +131,8 @@ public class ElGamalController {
 
     @FXML
     void btnOdszyfrujPlikBinarny(ActionEvent event) throws Exception {
-/*
-        elGamal.g= new BigInteger(textField1.getText(),16);
-        elGamal.a= new BigInteger(textField3.getText(),16);
-        elGamal.N= new BigInteger(textField4.getText(),16);
-        elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
-        BigInteger h=new BigInteger(textField2.getText(),16);
-        if (!elGamal.h.equals(h))
-        {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
-            textField2.setText(elGamal.h.toString(16));
-        }
-        File file = fileChooser.showOpenDialog(null);
-        String sciezka = file.getPath();
-        byte[] content = Files.readAllBytes(Paths.get(sciezka));
-        BigInteger [] dane = elGamal.decryptToBigInt(content);
-        byte [] dane2 = algorithmOperations.bigIntToByteArray(dane);
-        File file1 = fileChooser.showOpenDialog(null);
-        OutputStream outputStream2 = new FileOutputStream(file1.getPath());
-        outputStream2.write(dane2, 0,dane2.length);
-        outputStream2.close();
 
-*/
-
-
-
-    }
-
-
-
-
-
-
-    @FXML
-    void btnPlikBinarny(ActionEvent event) throws IOException {
-      /*  try{
+        try{
             if(reczna_edycja_klucza)
             {
                 if(textField1.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
@@ -179,21 +155,63 @@ public class ElGamalController {
             }
 
             else {
-                File file = fileChooser.showOpenDialog(null);
-                String sciezka = file.getPath();
-                byte[] content = Files.readAllBytes(Paths.get(sciezka));
-                BigInteger[] dane = elGamal.encrypt(content);
-                algorithmOperations.zapiszDoPlikuTabliceBigInt(dane,"zakodowane.pdf");
+
             }
 
         } catch(ElGamal.ElGamalKeyException e){JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
         catch(NumberFormatException  e1){JOptionPane.showMessageDialog(null, "Wartość klucza musi być podana w systemie szesnastkowym!", "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
         catch(Exception e2){JOptionPane.showMessageDialog(null, e2.getMessage(), "Wybierz plik", JOptionPane.ERROR_MESSAGE); }
 
-*/
+
+
+
 
     }
 
+
+
+
+
+
+    @FXML
+    void btnPlikBinarny(ActionEvent event) throws IOException {
+        try{
+            if(reczna_edycja_klucza)
+            {
+                if(textField1.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za krótka.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField1.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość g jest za długa.\nWynosi "+ textField1.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()<elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za krótka.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField3.getText().length()>elGamal.ilZnHex)throw elGamal.new ElGamalKeyException("Podana wartość a jest za długa.\nWynosi "+ textField3.getText().length()+" .\nMusi wynosić "+ elGamal.ilZnHex+" znaki w systemie szesnastkowym.");
+                if(textField4.getText().length()<elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za krótka.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
+                if(textField4.getText().length()>elGamal.ilZnHex+1)throw elGamal.new ElGamalKeyException("Podana wartość N jest za długa.\nWynosi "+ textField4.getText().length()+" .\nMusi wynosić "+ (elGamal.ilZnHex+1)+" znaków w systemie szesnastkowym.");
+
+                elGamal.g= new BigInteger(textField1.getText(),16);
+                elGamal.a= new BigInteger(textField3.getText(),16);
+                elGamal.N= new BigInteger(textField4.getText(),16);
+                elGamal.h=elGamal.g.modPow(elGamal.a,elGamal.N);
+                BigInteger h=new BigInteger(textField2.getText(),16);
+                if (!elGamal.h.equals(h))
+                {JOptionPane.showMessageDialog(null, "Wartość h nie zgadza się z wartościami g, a oraz N!\nzostała obliczona poprawna wartość h.", "Problem z kluczem publicznym", JOptionPane.ERROR_MESSAGE);
+                    textField2.setText(elGamal.h.toString(16));
+                }
+                reczna_edycja_klucza=false;
+            }
+
+            else {
+
+            }
+
+        } catch(ElGamal.ElGamalKeyException e){JOptionPane.showMessageDialog(null, e.getMessage(), "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
+        catch(NumberFormatException  e1){JOptionPane.showMessageDialog(null, "Wartość klucza musi być podana w systemie szesnastkowym!", "Problem z kluczem", JOptionPane.ERROR_MESSAGE); }
+        catch(Exception e2){JOptionPane.showMessageDialog(null, e2.getMessage(), "Wybierz plik", JOptionPane.ERROR_MESSAGE); }
+
+
+
+    }
+
+
+
+///////////////
     @FXML
     void btnSzyfrowanie(ActionEvent event) {
         try{
@@ -296,6 +314,96 @@ public class ElGamalController {
             }
         }
 
+    }
+
+    //////////////////////
+    protected void LoadFromFileDecryptedData() {
+        String text;
+        try {
+            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+            //Path path = Paths.get("C:\\Users\\cybul\\Downloads\\" + fileNameTextField1.getText());
+            loadedFileContent = Files.readAllBytes(path); //pracujemy na loadedFileContent
+            BigInteger fileContentAsDigits = new BigInteger(loadedFileContent);
+            char[] fileContentInAscii = new char[loadedFileContent.length];
+            for (int i = 0; i < loadedFileContent.length; i++) {
+                fileContentInAscii[i] = (char) loadedFileContent[i];
+            }
+            
+            text = fileContentAsDigits.toString();
+            szyfruj_plik.setText(text);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void LoadFromFileEncryptedData() {
+        try {
+            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+            //Path path = Paths.get("C:\\Users\\cybul\\Downloads\\" + fileNameTextField1.getText());
+            FileInputStream fi = new FileInputStream(path.toString());
+            ObjectInputStream oi = new ObjectInputStream(fi);
+
+            // Read objects
+            encryptedMessageAsList = (EncryptedData) oi.readObject(); //odczytujemy encrptedMessageAsList
+            isNegative = encryptedMessageAsList.isNegative();
+            oi.close();
+            fi.close();
+            String message = new String();
+            String zero = new String("0");
+            for (int i = 0; i < encryptedMessageAsList.getSize(); i++) {
+                message += zero.repeat(encryptedMessageAsList.getContent(i).second);
+                message += encryptedMessageAsList.getContent(i).first.toString();
+            }
+            //dataHolder = new BigInteger(String.valueOf(message));
+            //String readyText = new String(dataHolder.toByteArray());
+            wczytaj_tekst.setText(message);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void SaveToFileDecryptedData() {
+        try {
+                Path path;
+                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+
+
+            if(isNegative) {
+                byte []dataToFile = new byte[dataHolder.toByteArray().length+1];
+                for(int i=1; i<dataToFile.length; i++) {
+                    dataToFile[i] = dataHolder.toByteArray()[i-1];
+                }
+                dataToFile[0] = (byte) 0xff;
+                Files.write(path, dataToFile);
+            }
+            else {
+                Files.write(path, dataHolder.toByteArray()); //tu bedzie blad!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void SaveToFileEncryptedData() {
+        try {
+            Path path;
+                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+
+
+            FileOutputStream fileOutputStream
+                    = new FileOutputStream(path.toString());
+            ObjectOutputStream objectOutputStream
+                    = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(encryptedMessageAsList); //musimy zapisac encryptedMessageAsList
+            objectOutputStream.flush();
+            objectOutputStream.close();
+
+        } catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        } catch (IOException e) {
+            System.out.println("Error initializing stream");
+        }
     }
 
 }

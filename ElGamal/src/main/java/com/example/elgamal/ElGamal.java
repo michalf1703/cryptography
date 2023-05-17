@@ -1,7 +1,10 @@
 package com.example.elgamal;
+
+
 import javax.swing.*;
 import java.lang.*;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.io.ByteArrayOutputStream;
@@ -13,6 +16,9 @@ public class ElGamal {
     {public ElGamalKeyException(String msg){super(msg);};
     }
 
+    public static final int BOARD_SIZE = 4;
+    public static final int LENGTH_OF_TEXT = 16;
+    public int padding = 0;
 
     AlgorithmOperations algorithmOperations = new AlgorithmOperations();
 
@@ -35,65 +41,79 @@ public class ElGamal {
         // Obliczenie wartości N-1
         Nm1 = N.subtract(BigInteger.ONE);
     }
+    private byte[] convertToOneDimensionalArray(byte[][] array) {
+        byte[] oneDimensionalArray = new byte[4 * 4];
+        int counter = 0;
+        for (int i = 0; i < array.length; i++) {
+            for (int j = 0; j < array[i].length; j++) {
+                oneDimensionalArray[counter++] = array[j][i];
+            }
+        }
+        return oneDimensionalArray;
+    }
 
-
-    public BigInteger[] encryptToBigInt(byte[] message) {
-
+    public BigInteger[][] encrypt(byte[][] dataBlock) {
         // generujemy nowe r dla każdego szyfrowania
         r = BigInteger.probablePrime(keyLen, new Random());
-        if(MillerRabin.isPrime(r)== true ) {
-
-            while (true) {
-                if (r.gcd(Nm1).equals(BigInteger.ONE)) {
-                    break;
-                } else {
-                    r = r.nextProbablePrime();
-                }
-            }
-        }
-        else  {
-            JOptionPane.showMessageDialog(null, "Wartość r nie jest liczba pierwsza!", "Problem z wylosowanym r", JOptionPane.ERROR_MESSAGE);}
-        // ustalamy ile znaków będzie w jednym bloku
-        int ileZnakow = (a.bitLength() - 1) / 8;
-
-        // sprawdzamy czy wiadomość jest podzielna przez ileZnakow
-        boolean reszta = false;
-        int chunks;
-        if (message.length % ileZnakow != 0) {
-            chunks = (message.length / ileZnakow) + 1;
-            reszta = true;
-        } else {
-            chunks = message.length / ileZnakow;
+        while (true) {
+            if (r.gcd(Nm1).equals(BigInteger.ONE)) break;
+            else r = r.nextProbablePrime();
         }
 
-        // inicjalizujemy tablicę na zaszyfrowane bloki
-        BigInteger[] cipher = new BigInteger[chunks * 2];
+        BigInteger[][] cipher = new BigInteger[dataBlock.length][2];
 
-        // dzielimy wiadomość na bloki i szyfrujemy każdy z nich
-        if (!reszta) {
-            for (int i = 0, j = 0; i < chunks; i++, j += 2) {
-                byte[] pom = AlgorithmOperations.getSubarray(message, ileZnakow * i, ileZnakow * (i + 1));
-                cipher[j] = new BigInteger(1, pom);
-                cipher[j] = cipher[j].multiply(h.modPow(r, N)).mod(N); // C2
-                cipher[j + 1] = g.modPow(r, N); // C1
-            }
-        } else {
-            for (int i = 0, j = 0; i < chunks - 1; i++, j += 2) {
-                byte[] pom = AlgorithmOperations.getSubarray(message, ileZnakow * i, ileZnakow * (i + 1));
-                cipher[j] = new BigInteger(1, pom);
-                cipher[j] = cipher[j].multiply(h.modPow(r, N)).mod(N); // C2
-                cipher[j + 1] = g.modPow(r, N); // C1
-            }
-            byte[] pom = AlgorithmOperations.getSubarray(message, ileZnakow * (chunks - 1), message.length);
-            cipher[(chunks - 1) * 2] = new BigInteger(1, pom);
-            cipher[(chunks - 1) * 2] = cipher[(chunks - 1) * 2].multiply(h.modPow(r, N)).mod(N); // C2
-            cipher[((chunks - 1) * 2) + 1] = g.modPow(r, N); // C1
+        for (int i = 0; i < dataBlock.length; i++) {
+            byte[] block = dataBlock[i];
+
+            cipher[i][1] = g.modPow(r, N); // C1
+
+            BigInteger plaintext = new BigInteger(1, block);
+            cipher[i][0] = plaintext.multiply(h.modPow(r, N)).mod(N); // C2
         }
-
 
         return cipher;
-
     }
+    public ArrayList<Pair<BigInteger, Integer>> prepareForEncryption(BigInteger originalMessage) {
+        String originalMessageToString = originalMessage.toString(); // kopia, żeby przypadkiem nie zepsuć
+        int originalMessageLength = originalMessageToString.length();
+        int i = 0;
+        int index = 0; // index w zwracanej tablicy
+        ArrayList<Pair<BigInteger, Integer>> cutMessage = new ArrayList<>();
+        while (true) {
+            cutMessage.add(new Pair<>(BigInteger.valueOf(0), 0)); // z każdą iteracją tablica musi być rozszerzana
+            int numberOfInitialZeroes = 0;
+            while (i < originalMessageLength && originalMessageToString.charAt(i) == '0') {
+                numberOfInitialZeroes++;
+                i++;
+            }
+            while (cutMessage.get(index).first.multiply(BigInteger.TEN).compareTo(this.N) < 0 && i < originalMessageLength) {
+                cutMessage.set(index, new Pair<>(cutMessage.get(index).first.multiply(BigInteger.TEN), numberOfInitialZeroes));
+                cutMessage.set(index, new Pair<>(cutMessage.get(index).first.add(BigInteger.valueOf(originalMessageToString.charAt(i) - '0')), numberOfInitialZeroes)); // '0' - 48 w ASCII
+                i++;
+            }
+            index++;
+            if (i == originalMessageLength) {
+                return cutMessage;
+            }
+        }
+    }
+    public BigInteger encryptElGamal(BigInteger originalData) {
+        ArrayList<Pair<BigInteger, Integer>> preparedData = prepareForEncryption(originalData);
+
+        BigInteger encryptedData = BigInteger.ZERO;
+
+        for (Pair<BigInteger, Integer> pair : preparedData) {
+            BigInteger k = new BigInteger(keyLen, new Random()); // Losowa liczba k o długości keyLen bitów
+            BigInteger c1 = g.modPow(k, N);
+            BigInteger c2 = pair.first.multiply(h.modPow(k, N)).mod(N);
+
+            // Szyfrowane dane są złączone w postaci liczby BigInteger
+            encryptedData = encryptedData.multiply(N.pow(pair.second + 1)).add(c1).multiply(N).add(c2);
+        }
+
+        return encryptedData;
+    }
+
 
 
 
@@ -173,6 +193,31 @@ public class ElGamal {
         return wynik;
     }
 
+    public byte[][] distinguishData(byte[] data) {
+        byte[][] dataArraysHolder;
+
+        if(data.length%16 == 0) {
+            dataArraysHolder= new byte[(data.length/16)][LENGTH_OF_TEXT];
+        }
+        else {
+            dataArraysHolder= new byte[(data.length/16)+1][LENGTH_OF_TEXT];
+        }
+        int counter = 0;
+        for(int i=0; i<dataArraysHolder.length; i++) {
+            for(int j=0; j<LENGTH_OF_TEXT; j++) {
+                if(counter >= data.length) {
+                    dataArraysHolder[i][j] = (byte) 0;
+                    padding++;
+                }
+                else {
+                    dataArraysHolder[i][j] = data[counter];
+                }
+                counter++;
+            }
+        }
+        return dataArraysHolder;
+    }
+
 
 
 
@@ -210,7 +255,21 @@ public class ElGamal {
 
         return result;
     }
-
+    public byte[][] transformToByteMatrix(byte[] byteText) {
+        byte[][] bytes = new byte[4][4];
+        int plainTextByteCounter = 0;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (plainTextByteCounter >= byteText.length) {
+                    bytes[j][i] = 0; // padding
+                } else {
+                    bytes[j][i] = byteText[plainTextByteCounter];
+                }
+                plainTextByteCounter++;
+            }
+        }
+        return bytes;
+    }
 
 
 
