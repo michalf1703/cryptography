@@ -41,16 +41,6 @@ public class ElGamal {
         // Obliczenie wartości N-1
         Nm1 = N.subtract(BigInteger.ONE);
     }
-    private byte[] convertToOneDimensionalArray(byte[][] array) {
-        byte[] oneDimensionalArray = new byte[4 * 4];
-        int counter = 0;
-        for (int i = 0; i < array.length; i++) {
-            for (int j = 0; j < array[i].length; j++) {
-                oneDimensionalArray[counter++] = array[j][i];
-            }
-        }
-        return oneDimensionalArray;
-    }
 
     public BigInteger[][] encrypt(byte[][] dataBlock) {
         // generujemy nowe r dla każdego szyfrowania
@@ -113,10 +103,6 @@ public class ElGamal {
 
         return encryptedData;
     }
-
-
-
-
 
 
 
@@ -192,6 +178,10 @@ public class ElGamal {
 
         return wynik;
     }
+    public BigInteger decrypt(BigInteger data) {
+        return data.modPow(a, N).modInverse(N);
+    }
+
 
     public byte[][] distinguishData(byte[] data) {
         byte[][] dataArraysHolder;
