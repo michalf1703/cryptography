@@ -39,6 +39,8 @@ public class ElGamalController {
     private BigInteger[] odczytywanko;
     private BigInteger dupeczka, deszyfr123;
     private byte deszyfr_binarka[];
+    @FXML
+    private Button button_zapisz_plik_binarny;
     BigInteger dataHolder = null;
     boolean isNegative = false;
     private boolean reczna_edycja_klucza=false;
@@ -159,8 +161,6 @@ public class ElGamalController {
                 LoadFromFileEncryptedData();
                 DecryptFromFile();
                 SaveToFileDecryptedData();
-
-
 
             }
 
@@ -318,7 +318,7 @@ public class ElGamalController {
     protected void LoadFromFileDecryptedData() {
         String text;
         try {
-            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
             loadedFileContent = Files.readAllBytes(path); //pracujemy na loadedFileContent
             BigInteger fileContentAsDigits = new BigInteger(loadedFileContent);
             char[] fileContentInAscii = new char[loadedFileContent.length];
@@ -335,7 +335,7 @@ public class ElGamalController {
 
     private void LoadFromFileEncryptedData() {
         try {
-            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
             FileInputStream fi = new FileInputStream(path.toString());
             ObjectInputStream oi = new ObjectInputStream(fi);
 
@@ -350,8 +350,8 @@ public class ElGamalController {
                 message += zero.repeat(encryptedMessageAsList.getContent(i).second);
                 message += encryptedMessageAsList.getContent(i).first.toString();
             }
-            //dataHolder = new BigInteger(String.valueOf(message));
-            //String readyText = new String(dataHolder.toByteArray());
+            dataHolder = new BigInteger(String.valueOf(message));
+            String readyText = new String(dataHolder.toByteArray());
             wczytaj_tekst.setText(message);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -362,7 +362,7 @@ public class ElGamalController {
     private void SaveToFileDecryptedData() {
         try {
                 Path path;
-                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
 
 
             if(isNegative) {
@@ -384,7 +384,7 @@ public class ElGamalController {
     private void SaveToFileEncryptedData() {
         try {
             Path path;
-                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
 
 
             FileOutputStream fileOutputStream
@@ -417,11 +417,14 @@ public class ElGamalController {
         encryptedMessageAsList.setNegative(isNegative);
 
     }
-    private void loadFromFile() {
+    private void loadFromFile() throws IOException {
         String text;
         try {
-            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
             loadedFileContent = Files.readAllBytes(path);
+            Path path2;
+            path2 = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "pliczek.txt");
+            Files.write(path2, loadedFileContent);
             char[] fileContentInAscii = new char[loadedFileContent.length];
             for (int i = 0; i < loadedFileContent.length; i++) {
                 fileContentInAscii[i] = (char) loadedFileContent[i];
@@ -430,13 +433,15 @@ public class ElGamalController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+
     }
     private void saveToFile() {
         try {
             Path path;
-                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.pdf");
+                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
 
-            Files.write(path, loadedFileContent);
+            Files.write(path, wczytaj_tekst.getText().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -458,5 +463,15 @@ public class ElGamalController {
         String readyText = new String(dataHolder.toByteArray());
     }
 
+    @FXML
+    void btnZapiszPlikBinarke(ActionEvent event) {
+        try {
+            Path path;
+            path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
 
+            Files.write(path, loadedFileContent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
