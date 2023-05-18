@@ -26,7 +26,6 @@ public class ElGamalController {
     private FileChooser fileChooser = new FileChooser();
     AlgorithmOperations algorithmOperations = new AlgorithmOperations();
     private byte tekst[];
-    EncryptedData encryptedMessageAsList = new EncryptedData();
     private byte[] loadedFileContent;
     private File plikOdczytuTekstu,plikOdczytuszyfr, plikzapisuSzyfr;
     private byte[] szyfr;
@@ -158,9 +157,7 @@ public class ElGamalController {
             }
 
             else {
-                LoadFromFileEncryptedData();
-                DecryptFromFile();
-                SaveToFileDecryptedData();
+
 
             }
 
@@ -197,9 +194,7 @@ public class ElGamalController {
             }
 
             else {
-                loadFromFile();
-                EncryptFromFile();
-                SaveToFileEncryptedData();
+
 
             }
 
@@ -209,7 +204,7 @@ public class ElGamalController {
 
     }
 
-///////////////
+
     @FXML
     void btnSzyfrowanie(ActionEvent event) {
         try{
@@ -314,164 +309,23 @@ public class ElGamalController {
 
     }
 
-    //////////////////////
-    protected void LoadFromFileDecryptedData() {
-        String text;
-        try {
-            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
-            loadedFileContent = Files.readAllBytes(path); //pracujemy na loadedFileContent
-            BigInteger fileContentAsDigits = new BigInteger(loadedFileContent);
-            char[] fileContentInAscii = new char[loadedFileContent.length];
-            for (int i = 0; i < loadedFileContent.length; i++) {
-                fileContentInAscii[i] = (char) loadedFileContent[i];
-            }
-
-            text = fileContentAsDigits.toString();
-            szyfruj_plik.setText(text);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void LoadFromFileEncryptedData() {
-        try {
-            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
-            FileInputStream fi = new FileInputStream(path.toString());
-            ObjectInputStream oi = new ObjectInputStream(fi);
-
-            // Read objects
-            encryptedMessageAsList = (EncryptedData) oi.readObject(); //odczytujemy encrptedMessageAsList
-            isNegative = encryptedMessageAsList.isNegative();
-            oi.close();
-            fi.close();
-            String message = new String();
-            String zero = new String("0");
-            for (int i = 0; i < encryptedMessageAsList.getSize(); i++) {
-                message += zero.repeat(encryptedMessageAsList.getContent(i).second);
-                message += encryptedMessageAsList.getContent(i).first.toString();
-            }
-            dataHolder = new BigInteger(String.valueOf(message));
-            String readyText = new String(dataHolder.toByteArray());
-            wczytaj_tekst.setText(message);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    private void SaveToFileDecryptedData() {
-        try {
-                Path path;
-                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
 
 
-            if(isNegative) {
-                byte []dataToFile = new byte[dataHolder.toByteArray().length+1];
-                for(int i=1; i<dataToFile.length; i++) {
-                    dataToFile[i] = dataHolder.toByteArray()[i-1];
-                }
-                dataToFile[0] = (byte) 0xff;
-                Files.write(path, dataToFile);
-            }
-            else {
-                Files.write(path, dataHolder.toByteArray()); //tu bedzie blad!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-    private void SaveToFileEncryptedData() {
-        try {
-            Path path;
-                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
-
-
-            FileOutputStream fileOutputStream
-                    = new FileOutputStream(path.toString());
-            ObjectOutputStream objectOutputStream
-                    = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(encryptedMessageAsList); //musimy zapisac encryptedMessageAsList
-            objectOutputStream.flush();
-            objectOutputStream.close();
-
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found");
-        } catch (IOException e) {
-            System.out.println("Error initializing stream");
-        }
-    }
-
-    private void EncryptFromFile() {
-        BigInteger e = new BigInteger(loadedFileContent);
-        if(e.compareTo(BigInteger.ZERO) < 0) {
-            e = e.negate();
-            isNegative = true;
-        }
-        ArrayList<Pair<BigInteger, Integer>> cutMessage = elGamal.prepareForEncryption(e);
-        String encryptedMessage = new String();
-        for (int i = 0; i < cutMessage.size(); i++) {
-            encryptedMessageAsList.appendContent(i, elGamal.encryptElGamal(cutMessage.get(i).first), cutMessage.get(i).second); //rozszerzamy encryptedMessageAsList o zaszyfrowane dane
-            encryptedMessage += elGamal.encryptElGamal(cutMessage.get(i).first).toString();
-        }
-        encryptedMessageAsList.setNegative(isNegative);
-
-    }
-    private void loadFromFile() throws IOException {
-        String text;
-        try {
-            Path path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
-            loadedFileContent = Files.readAllBytes(path);
-            Path path2;
-            path2 = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "pliczek.txt");
-            Files.write(path2, loadedFileContent);
-            char[] fileContentInAscii = new char[loadedFileContent.length];
-            for (int i = 0; i < loadedFileContent.length; i++) {
-                fileContentInAscii[i] = (char) loadedFileContent[i];
-            }
-            text = new String(fileContentInAscii);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-
-    }
-    private void saveToFile() {
-        try {
-            Path path;
-                path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
-
-            Files.write(path, wczytaj_tekst.getText().getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    String decryptedMessage;
-    private void DecryptFromFile() {
-        ArrayList<BigInteger> decryptedMessageAsList = new ArrayList<>();
-        decryptedMessage = new String();
-        String zero = new String("0");
-        for (int i = 0; i < encryptedMessageAsList.getSize(); i++) {
-            decryptedMessageAsList.add(elGamal.decrypt(encryptedMessageAsList.getContent(i).first));
-            decryptedMessage += zero.repeat(encryptedMessageAsList.getContent(i).second);
-            decryptedMessage += elGamal.decrypt(encryptedMessageAsList.getContent(i).first).toString();
-        }
-        dataHolder = new BigInteger(String.valueOf(decryptedMessage)); //dataHolder przechowuje odszyfrowane dane gotowe do zapisu
-        if(isNegative) {
-            dataHolder = dataHolder.negate();
-        }
-        String readyText = new String(dataHolder.toByteArray());
-    }
 
     @FXML
     void btnZapiszPlikBinarke(ActionEvent event) {
-        try {
-            Path path;
-            path = Paths.get("C:\\Users\\Hp\\Documents\\GitHub\\cryptography\\ElGamal\\" + "zakodowane.txt");
-
-            Files.write(path, loadedFileContent);
-        } catch (IOException e) {
-            e.printStackTrace();
+        FileDialog dialog = new FileDialog((Frame)null, "Wybierz plik", FileDialog.SAVE);
+        dialog.setVisible(true);
+        String fileName = dialog.getFile();
+        if (fileName != null) {
+            String filePath = dialog.getDirectory() + fileName;
+            try {
+                pliczek.zapiszDoPliku(wczytaj_tekst.getText().getBytes(), filePath);
+            }
+            catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Problem z zapisem do pliku" + filePath, "Problem z zapisem do pliku", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 }
