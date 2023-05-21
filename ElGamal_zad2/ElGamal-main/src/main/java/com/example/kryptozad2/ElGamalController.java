@@ -11,6 +11,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -84,7 +85,6 @@ public class ElGamalController {
     @FXML
     private Button btn_zapisz_szyfr_z_okienka;
 
-    FileOperations pliczek = new FileOperations();
     byte[] content;
     private byte tekst[];
     ElGamalController mainController;
@@ -92,11 +92,6 @@ public class ElGamalController {
     Stage stage = new Stage();
 
     File file;
-
-    BigInteger p;
-    BigInteger h;
-    BigInteger g;
-    BigInteger pk;
 
 
     public void showStage() throws IOException {
@@ -110,7 +105,6 @@ public class ElGamalController {
     }
 
     public void defaultSettings() {
-        ToggleGroup toggleGroup = new ToggleGroup();
         encryptButton.setOnAction(a -> encryptMessage());
         decryptButton.setOnAction(a -> decryptMessage());
         setFile.setOnAction(a -> {
@@ -184,7 +178,7 @@ public class ElGamalController {
         if (selectedFile != null) {
             String pom = selectedFile.getAbsolutePath();
             plikOdczytuTekstu = new File(pom);
-            tekst = pliczek.wczytajZpliku(pom);
+            tekst = wczytajZpliku(pom);
             textToEncrypt.setText(new String(tekst));
 
         }
@@ -198,7 +192,7 @@ public class ElGamalController {
         if (selectedFile != null) {
             String pom = selectedFile.getAbsolutePath();
             plikOdczytuTekstu = new File(pom);
-            tekst = pliczek.wczytajZpliku(pom);
+            tekst = wczytajZpliku(pom);
             textToDecrypt.setText(new String(tekst));
 
         }
@@ -298,27 +292,6 @@ public class ElGamalController {
                 throw new RuntimeException(e);
             }
 
-
-
-
-        }
-    }
-    public void saveFile() {
-        FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
-        fileChooser.getExtensionFilters().add(extFilter);
-        FileChooser.ExtensionFilter pdfFilter = new FileChooser.ExtensionFilter("PDF files (*.pdf)", "*.pdf");
-        fileChooser.getExtensionFilters().add(pdfFilter);
-        FileChooser.ExtensionFilter binFilter = new FileChooser.ExtensionFilter("Binary Files (*.bin)", "*.bin");
-        fileChooser.getExtensionFilters().add(binFilter);
-        FileChooser.ExtensionFilter pngFilter = new FileChooser.ExtensionFilter("PNG Files (*.png)", "*.png");
-        fileChooser.getExtensionFilters().add(pngFilter);
-        fileChooser.setTitle("Zapisz plik");
-        file = fileChooser.showSaveDialog(stage);
-        try(FileOutputStream stream = new FileOutputStream(file)) {
-            stream.write(content);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
     public BigInteger convertHexStringToBigInt(String text){
@@ -351,24 +324,24 @@ public class ElGamalController {
         }
 
     }
-    @FXML
-    void btnPlikBinarny(ActionEvent event) {
-
-
-    }
-
-    @FXML
-    void btnWczytajPlikTekst(ActionEvent event) {
-
-    }
 
     @FXML
     void btnWczytajSzyfrPlik(ActionEvent event) {
 
     }
+
     @FXML
     void btnZapiszPlikTekst(ActionEvent event) {
 
-
     }
+    public static byte[] wczytajZpliku(String nazwa_pliku) throws Exception
+    {
+        FileInputStream fis = new FileInputStream(nazwa_pliku);
+        int ileWPliku = fis.available();
+        byte[] dane = new byte[ileWPliku];
+        fis.read(dane);
+        fis.close();
+        return dane;
+    }
+
 }

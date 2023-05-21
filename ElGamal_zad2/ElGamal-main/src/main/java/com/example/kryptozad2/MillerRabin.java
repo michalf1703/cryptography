@@ -3,9 +3,11 @@ package com.example.kryptozad2;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+// Klasa implementująca algorytm Miller-Rabin do testowania pierwszości liczby
 public class MillerRabin {
     private static final int DEFAULT_CERTAINTY = 40;
 
+    // Sprawdzenie, czy liczba jest prawdopodobnie pierwsza
     public static boolean isProbablePrime(BigInteger n) {
         if (n.compareTo(BigInteger.ONE) <= 0) {
             return false;
@@ -51,6 +53,7 @@ public class MillerRabin {
         return true;
     }
 
+    // Generowanie losowej podstawy w zakresie od 2 do n-1
     private static BigInteger getRandomBase(BigInteger n) {
         BigInteger base;
         do {
@@ -59,3 +62,4 @@ public class MillerRabin {
         return base;
     }
 }
+
