@@ -1,66 +1,61 @@
 package com.example.kryptozad2;
 
 import java.math.BigInteger;
-import java.util.Random;
+import java.security.SecureRandom;
 
 public class MillerRabin {
+    private static final int DEFAULT_CERTAINTY = 40;
 
-    private static final int CERTAINTY = 10; // liczba iteracji testu
-
-    public static boolean isPrime(BigInteger n) {
-
-        // Sprawdzamy, czy liczba n jest większa niż 1 (liczba 1 nie jest liczba pierwsza)
+    public static boolean isProbablePrime(BigInteger n) {
         if (n.compareTo(BigInteger.ONE) <= 0) {
             return false;
         }
-        // Przyjmujemy, że liczby 2 i 3 są pierwsze
-        if (n.equals(BigInteger.valueOf(2)) || n.equals(BigInteger.valueOf(3))) {
+
+        if (n.compareTo(BigInteger.valueOf(3)) <= 0) {
             return true;
         }
 
-        // Sprawdzamy, czy liczba jest parzysta - jeśli tak, to nie jest pierwsza
-        if (n.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-            return false;
-        }
-
-        // n - 1 = d * 2^s, gdzie d jest nieparzyste
-        BigInteger d = n.subtract(BigInteger.ONE);
         int s = 0;
+        BigInteger d = n.subtract(BigInteger.ONE);
         while (d.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
-            d = d.divide(BigInteger.TWO);
             s++;
+            d = d.divide(BigInteger.TWO);
         }
 
-        // Wykonujemy test CERTAINTY razy
-        for (int i = 0; i < CERTAINTY; i++) {
-            // Losujemy liczbę a z zakresu [2, n - 2]
-            BigInteger a = BigInteger.valueOf(2 + new Random().nextInt(n.intValue() - 3));
-
-            // Obliczamy a^d mod n
+        int iterations = DEFAULT_CERTAINTY;
+        for (int i = 0; i < iterations; i++) {
+            BigInteger a = getRandomBase(n);
             BigInteger x = a.modPow(d, n);
 
-            // Jeśli x = 1 lub x = n - 1, to n może być pierwsza, kontynuujemy test
             if (x.equals(BigInteger.ONE) || x.equals(n.subtract(BigInteger.ONE))) {
                 continue;
             }
 
-            // Obliczamy kolejne potęgi a^d mod n
-            boolean isPrime = false;
-            for (int j = 0; j < s - 1; j++) {
+            boolean isComposite = true;
+            for (int r = 1; r < s; r++) {
                 x = x.modPow(BigInteger.TWO, n);
                 if (x.equals(BigInteger.ONE)) {
-                    return false; // n nie jest pierwsza
+                    return false;
                 }
                 if (x.equals(n.subtract(BigInteger.ONE))) {
-                    isPrime = true;
-                    break; // kontynuujemy test
+                    isComposite = false;
+                    break;
                 }
             }
-            if (!isPrime) {
-                return false; // n nie jest pierwsza
+
+            if (isComposite) {
+                return false;
             }
         }
 
-        return true; // n może być pierwsza
+        return true;
+    }
+
+    private static BigInteger getRandomBase(BigInteger n) {
+        BigInteger base;
+        do {
+            base = new BigInteger(n.bitLength(), new SecureRandom());
+        } while (base.compareTo(BigInteger.ONE) <= 0 || base.compareTo(n) >= 0);
+        return base;
     }
 }
