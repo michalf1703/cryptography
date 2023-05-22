@@ -43,14 +43,15 @@ public class ElGamal {
         p = generateProbablePrime(512);
         g = generateRandomBigInteger(510);
         k = generateRandomBigInteger(510);
-        h = g.modPow(k, p);
+        h = g.modPow(k, p); //512
         Nm1 = p.subtract(BigInteger.ONE);
-
         HexFormat hex = HexFormat.of();
         pKey = hex.formatHex(p.toByteArray());
         gKey = hex.formatHex(g.toByteArray());
         hKey = hex.formatHex(h.toByteArray());
         privateKey = hex.formatHex(k.toByteArray());
+        //510 + 512 + 512 = 1534
+
     }
 
     // Generowanie prawdopodobnej liczby pierwszej o określonej długości bitowej
@@ -69,18 +70,29 @@ public class ElGamal {
 
     // Szyfrowanie wiadomości
     public String[] encryptMessage(byte[] toEncrypt) {
+        // Wygenerowanie losowej liczby b o długości bitowej 500
         BigInteger b = generateRandomBigInteger(500);
+
+        // Sprawdzenie, czy wartość Nm1 została już wcześniej obliczona
         if (Nm1 == null) {
             Nm1 = p.subtract(BigInteger.ONE);
         }
 
+        // Konwersja wiadomości do postaci liczby BigInteger
         BigInteger temp = new BigInteger(toEncrypt);
+
+        // Obliczenie c1 = g^b mod p
         BigInteger c1 = g.modPow(b, p);
+
+        // Obliczenie c2 = h^b mod p * toEncrypt
         BigInteger c2 = h.modPow(b, p);
         c2 = c2.multiply(temp);
+
+        // Przygotowanie wynikowych części zaszyfrowanej wiadomości
         String[] parts = new String[2];
         parts[0] = c1.toString();
         parts[1] = c2.toString();
+        // podział w celu późniejszego odszyfrowania kluczem prywatnym
         return parts;
     }
 
@@ -91,10 +103,16 @@ public class ElGamal {
 
     // Deszyfrowanie wiadomości
     public byte[] decryptMessage() {
+        // Obliczenie wartości temp = c1^k mod p
         BigInteger temp = c1.modPow(k, p);
+
+        // Obliczenie wartości temp2 = c2 / temp
         BigInteger temp2 = c2.divide(temp);
+
+        // Konwersja wartości temp2 do postaci tablicy bajtów
         return temp2.toByteArray();
     }
+
 
     // Pobranie klucza publicznego p
     public String getpKey() {

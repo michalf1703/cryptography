@@ -9,6 +9,7 @@ public class MillerRabin {
 
     // Sprawdzenie, czy liczba jest prawdopodobnie pierwsza
     public static boolean isProbablePrime(BigInteger n) {
+        // Sprawdzenie podstawowych warunków brzegowych
         if (n.compareTo(BigInteger.ONE) <= 0) {
             return false;
         }
@@ -17,6 +18,7 @@ public class MillerRabin {
             return true;
         }
 
+        // Obliczenie parametrów s i d
         int s = 0;
         BigInteger d = n.subtract(BigInteger.ONE);
         while (d.mod(BigInteger.TWO).equals(BigInteger.ZERO)) {
@@ -26,7 +28,10 @@ public class MillerRabin {
 
         int iterations = DEFAULT_CERTAINTY;
         for (int i = 0; i < iterations; i++) {
+            // Wygenerowanie losowej podstawy
             BigInteger a = getRandomBase(n);
+
+            // Obliczenie x = a^d mod n
             BigInteger x = a.modPow(d, n);
 
             if (x.equals(BigInteger.ONE) || x.equals(n.subtract(BigInteger.ONE))) {
@@ -35,6 +40,7 @@ public class MillerRabin {
 
             boolean isComposite = true;
             for (int r = 1; r < s; r++) {
+                // Obliczenie x = x^2 mod n
                 x = x.modPow(BigInteger.TWO, n);
                 if (x.equals(BigInteger.ONE)) {
                     return false;
@@ -62,4 +68,3 @@ public class MillerRabin {
         return base;
     }
 }
-
